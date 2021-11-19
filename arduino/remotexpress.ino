@@ -48,7 +48,7 @@ void setup()
   if (!station)
   {
     WiFi.mode(WIFI_AP);
-    WiFi.softAP("RemoteXpress", "12345678");
+    WiFi.softAP("remoteXpress", "12345678");
     Serial.println(WiFi.softAPIP());
   }
   else
