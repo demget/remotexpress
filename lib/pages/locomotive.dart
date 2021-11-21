@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:remotexpress/widgets/clip.dart';
+import 'package:remotexpress/clippers/clip.dart';
 
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';

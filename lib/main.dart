@@ -3,6 +3,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:remotexpress/pages/accessories.dart';
+import 'package:remotexpress/pages/debug.dart';
 import 'package:remotexpress/pages/locomotive.dart';
 import 'package:window_size/window_size.dart' as window;
 
@@ -50,6 +52,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  static const _debugPageIndex = 2;
+
   List<Widget> _pages = <Widget>[];
   int _selectedPage = 0;
 
@@ -62,7 +66,8 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     _pages.add(LocomotivePage());
-    _pages.add(LocomotivePage());
+    _pages.add(AccessoriesPage());
+    _pages.add(DebugPage());
     super.initState();
   }
 
@@ -76,16 +81,24 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text(widget.title),
         elevation: 5,
+        centerTitle: true,
         actions: [
+          IconButton(
+            icon: Icon(Icons.bug_report),
+            onPressed: () => _onNavigationItem(_debugPageIndex),
+          ),
           IconButton(
             icon: Icon(Icons.keyboard_voice),
             onPressed: () {},
           ),
         ],
       ),
-      body: IndexedStack(
-        index: _selectedPage,
-        children: _pages,
+      body: Padding(
+        padding: EdgeInsets.all(7),
+        child: IndexedStack(
+          index: _selectedPage,
+          children: _pages,
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const [
