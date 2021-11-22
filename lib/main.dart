@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:remotexpress/pages/accessories.dart';
 import 'package:remotexpress/pages/debug.dart';
 import 'package:remotexpress/pages/locomotive.dart';
@@ -12,7 +13,7 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-    const size = Size(397, 697); // 737);
+    const size = Size(397, 697);
     window.setWindowMinSize(size);
     window.setWindowMaxSize(size);
   }
@@ -23,6 +24,10 @@ void main() {
 class App extends StatelessWidget {
   static const String title = 'remoteXpress';
 
+  static const Color backgroundColor = Color.fromARGB(0xff, 34, 34, 57);
+  // static const Color backgroundColor = Color.fromARGB(0xff, 41, 40, 69);
+  static const Color primaryColor = Color.fromARGB(0xff, 125, 123, 250);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -30,11 +35,19 @@ class App extends StatelessWidget {
       themeMode: ThemeMode.light,
       theme: ThemeData(
         brightness: Brightness.light,
-        primarySwatch: Colors.green,
-      ),
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        primaryColor: Colors.orange,
+        primaryColor: primaryColor,
+        scaffoldBackgroundColor: backgroundColor,
+        canvasColor: Colors.transparent,
+        primaryTextTheme: TextTheme(
+          headline6: GoogleFonts.lato(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        appBarTheme: AppBarTheme(
+          elevation: 0,
+          backgroundColor: backgroundColor,
+        ),
       ),
       debugShowCheckedModeBanner: false,
       home: HomePage(title: title),
@@ -78,46 +91,70 @@ class _HomePageState extends State<HomePage> {
     ]);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        elevation: 5,
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.bug_report),
-            onPressed: () => _onNavigationItem(_debugPageIndex),
+      // appBar: AppBar(
+      //   title: Text(widget.title),
+      //   // centerTitle: true,
+      //   elevation: AppBarTheme.of(context).elevation,
+      //   actions: [
+      //     // IconButton(
+      //     //   icon: Icon(Icons.bug_report),
+      //     //   onPressed: () => _onNavigationItem(_debugPageIndex),
+      //     // ),
+      //     // IconButton(
+      //     //   icon: Icon(Icons.keyboard_voice),
+      //     //   color: Theme.of(context).primaryColor,
+      //     //   focusColor: Colors.grey,
+      //     //   autofocus: true,
+      //     //   onPressed: () {},
+      //     // ),
+      //   ],
+      // ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.bottomLeft,
+            end: Alignment.topRight,
+            colors: [
+              Color(0xff222239),
+              Color(0xff292845),
+            ],
           ),
-          IconButton(
-            icon: Icon(Icons.keyboard_voice),
-            onPressed: () {},
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(7),
+          child: IndexedStack(
+            index: _selectedPage,
+            children: _pages,
           ),
-        ],
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(7),
-        child: IndexedStack(
-          index: _selectedPage,
-          children: _pages,
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.train),
-            label: 'Locomotive',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.alt_route),
-            label: 'Accessories',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.amp_stories),
-            label: 'CV',
-          ),
-        ],
-        selectedItemColor: Theme.of(context).primaryColor,
-        currentIndex: _selectedPage,
-        onTap: _onNavigationItem,
+      bottomNavigationBar: ClipRRect(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(30.0),
+          topRight: Radius.circular(30.0),
+        ),
+        child: BottomNavigationBar(
+          backgroundColor: Color.fromARGB(0xff, 33, 33, 47),
+          selectedItemColor: Theme.of(context).primaryColor,
+          unselectedItemColor: Colors.white54,
+          elevation: 5,
+          currentIndex: _selectedPage,
+          onTap: _onNavigationItem,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.train),
+              label: 'Locomotive',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.alt_route),
+              label: 'Accessories',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.amp_stories),
+              label: 'CV',
+            ),
+          ],
+        ),
       ),
     );
   }

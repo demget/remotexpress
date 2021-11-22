@@ -1,5 +1,7 @@
+import 'package:countup/countup.dart';
 import 'package:flutter/material.dart';
 import 'package:remotexpress/clippers/clip.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
@@ -19,6 +21,7 @@ class _LocomotivePageState extends State<LocomotivePage> {
   // Visual data
   int _speedInterval = 4;
   int _visualSpeed = 0;
+  int _previousSpeed = 0;
 
   void _onSpeedStepLabel(AxisLabelCreatedArgs args) {
     args.text = _speedSteps[int.parse(args.text) - 1].toString();
@@ -26,9 +29,11 @@ class _LocomotivePageState extends State<LocomotivePage> {
 
   int _speed = 0;
   int _speedStep = 28;
+  int _speedStepIndex = 2;
   int _direction = 0;
 
   void _forceSpeed(int value) {
+    _previousSpeed = _visualSpeed;
     _speed = _visualSpeed = value;
   }
 
@@ -42,14 +47,18 @@ class _LocomotivePageState extends State<LocomotivePage> {
 
   void _onVisualSpeedChanged(_) {
     setState(() {
+      _previousSpeed = _visualSpeed;
       _visualSpeed = _speed;
     });
   }
 
-  void _onSpeedStep() {
+  void _onSpeedStepChanged(double value) {
     setState(() {
-      int i = _speedSteps.indexOf(_speedStep);
-      _speedStep = _speedSteps[i == 2 ? 0 : i + 1];
+      int index = value.round();
+      if (_speedStepIndex == index) return;
+
+      _speedStepIndex = index;
+      _speedStep = _speedSteps[_speedStepIndex - 1];
       _speedInterval = _speedStep == 128 ? 16 : _speedStep ~/ 7;
       _forceSpeed(0);
     });
@@ -57,6 +66,9 @@ class _LocomotivePageState extends State<LocomotivePage> {
 
   void _onDirectionChanged(value) {
     setState(() {
+      int direction = value.toInt();
+      if (_direction == direction) return;
+
       _direction = value.toInt();
       _forceSpeed(0);
     });
@@ -65,41 +77,29 @@ class _LocomotivePageState extends State<LocomotivePage> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Stack(
           alignment: AlignmentDirectional.topCenter,
           children: [
             Padding(
-              padding: EdgeInsets.only(
-                left: 20,
-                right: 20,
-              ),
+              padding: EdgeInsets.only(left: 10, right: 10),
               child: SfRadialGauge(
                 axes: [
                   RadialAxis(
-                    startAngle: 25,
-                    endAngle: 120,
+                    startAngle: 50,
+                    endAngle: 130,
                     minimum: 1,
                     maximum: 3,
                     interval: 1,
                     radiusFactor: 0.45,
-                    showAxisLine: false,
-                    showLastLabel: false,
+                    showAxisLine: true,
+                    showTicks: false,
                     minorTicksPerInterval: 0,
                     centerY: 0.65,
-                    labelOffset: 10,
+                    labelOffset: 20,
                     isInversed: true,
                     onLabelCreated: _onSpeedStepLabel,
-                    majorTickStyle: MajorTickStyle(
-                      length: 8,
-                      thickness: 2,
-                    ),
-                    axisLabelStyle: GaugeTextStyle(
-                      color: Colors.grey,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
                     ranges: [
                       GaugeRange(
                         startValue: 1,
@@ -107,31 +107,59 @@ class _LocomotivePageState extends State<LocomotivePage> {
                         sizeUnit: GaugeSizeUnit.factor,
                         startWidth: 0.03,
                         endWidth: 0.03,
-                        color: Theme.of(context).primaryColor,
-                        // color: _direction >= 0
-                        //     ? Theme.of(context).primaryColor
-                        //     : Colors.orange,
+                        color: Colors.transparent,
                       ),
                     ],
                     pointers: [
-                      NeedlePointer(
-                        value: _speedSteps.indexOf(_speedStep).toDouble() + 1,
-                        needleLength: 0.45,
-                        enableAnimation: true,
-                        animationType: AnimationType.ease,
-                        animationDuration: 500,
-                        needleStartWidth: 1,
-                        needleEndWidth: 4,
-                        needleColor: Colors.red,
+                      MarkerPointer(
+                        enableDragging: true,
+                        value: _speedStepIndex.toDouble(),
+                        onValueChanged: _onSpeedStepChanged,
+                        enableAnimation: false,
+                        animationDuration: 300,
+                        markerType: MarkerType.circle,
+                        markerWidth: 12,
+                        markerHeight: 12,
+                        color: // Colors.grey[100],
+                            Color.fromARGB(0xff, 77, 172, 100),
+                        // Color.fromARGB(0xff, 234, 192, 49),
+                        // Color(0xffb279a7),
+                        offsetUnit: GaugeSizeUnit.factor,
+                        overlayRadius: 12,
                       ),
                     ],
+                    axisLineStyle: AxisLineStyle(
+                        thicknessUnit: GaugeSizeUnit.factor,
+                        thickness: 0.06,
+                        cornerStyle: CornerStyle.bothCurve,
+                        color: // Colors.white,
+                            Color.fromARGB(0xff, 77, 172, 100)
+                        //  Color.fromARGB(0xff, 234, 192, 49),
+                        // gradient: SweepGradient(
+                        //   colors: <Color>[
+                        //     Color(0xffb279a7),
+                        //     Color(0xffd387ab),
+                        //   ],
+                        // ),
+                        ),
+                    axisLabelStyle: GaugeTextStyle(
+                      color: Colors.grey,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                    majorTickStyle: MajorTickStyle(
+                      length: 8,
+                      thickness: 2,
+                      color: Color(0xffd387ab),
+                    ),
                   ),
                   RadialAxis(
-                    startAngle: 155,
-                    endAngle: 0,
+                    startAngle: 150,
+                    endAngle: 30,
                     radiusFactor: 1,
                     canScaleToFit: true,
                     canRotateLabels: true,
+                    showTicks: false,
                     minimum: 0,
                     maximum: _speedStep.toDouble() + 0.01,
                     interval: _speedInterval.toDouble(),
@@ -141,30 +169,60 @@ class _LocomotivePageState extends State<LocomotivePage> {
                         startValue: 0,
                         endValue: _speedStep.toDouble(),
                         sizeUnit: GaugeSizeUnit.factor,
-                        startWidth: 0.03,
-                        endWidth: 0.03,
-                        color: Theme.of(context).primaryColor,
-                        // color: _direction >= 0
-                        //     ? Theme.of(context).primaryColor
-                        //     : Colors.orange,
+                        startWidth: 0.07,
+                        endWidth: 0.07,
+                        color: Colors.transparent,
                       ),
                     ],
                     pointers: [
-                      NeedlePointer(
-                        value: _visualSpeed.toDouble(),
-                        knobStyle: KnobStyle(knobRadius: 0.1),
-                        needleLength: 0.75,
+                      RangePointer(
+                        value: _visualSpeed > 0
+                            ? _visualSpeed.toDouble() + 0.11
+                            : 0,
                         enableAnimation: true,
                         animationType: AnimationType.ease,
                         animationDuration: 500,
-                        needleStartWidth: 1,
-                        needleEndWidth: 8,
-                        needleColor: Colors.red,
+                        color: Theme.of(context).primaryColor,
+                        // Color.fromARGB(0xff, 77, 172, 100),
+                        cornerStyle: CornerStyle.bothCurve,
+                        width: 15,
+                      ),
+                    ],
+                    annotations: [
+                      GaugeAnnotation(
+                        widget: Padding(
+                          padding: EdgeInsets.only(bottom: 80),
+                          child: Countup(
+                            begin: _previousSpeed.toDouble(),
+                            end: _visualSpeed.toDouble(),
+                            duration: Duration(milliseconds: 500),
+                            textScaleFactor: 8,
+                            style: GoogleFonts.lato(
+                              color: Colors.grey[350],
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                          // child: Text(
+                          //   _visualSpeed.toString(),
+                          //   textScaleFactor: 8,
+                          //   style: GoogleFonts.lato(
+                          //     color: Colors.grey[350],
+                          //     fontWeight: FontWeight.w300,
+                          //   ),
+                        ),
+                        positionFactor: 0.03,
                       ),
                     ],
                     axisLineStyle: AxisLineStyle(
                       thicknessUnit: GaugeSizeUnit.factor,
-                      thickness: 0.03,
+                      thickness: 0.08,
+                      cornerStyle: CornerStyle.bothCurve,
+                      color: Theme.of(context).primaryColor.withOpacity(0.28),
+                    ),
+                    axisLabelStyle: GaugeTextStyle(
+                      color: Colors.grey,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
                     ),
                     majorTickStyle: MajorTickStyle(
                       length: 6,
@@ -174,89 +232,85 @@ class _LocomotivePageState extends State<LocomotivePage> {
                       length: 4,
                       thickness: 3,
                     ),
-                    axisLabelStyle: GaugeTextStyle(
-                      color: Colors.grey,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
                   ),
                 ],
               ),
             ),
-            Padding(
-              padding: EdgeInsets.only(top: 212),
-              child: Align(
-                alignment: Alignment.center,
-                child: MaterialButton(
-                  onPressed: _onSpeedStep,
-                  textColor: Colors.white,
-                  child: Icon(Icons.linear_scale),
-                  shape: CircleBorder(),
-                ),
-              ),
-            ),
-            Align(
-              alignment: Alignment.topLeft,
-              child: Stack(
-                children: [
-                  MaterialButton(
-                    height: 75,
-                    elevation: 5,
-                    onPressed: () {},
-                    color: Colors.transparent,
-                    shape: CircleBorder(),
-                  ),
-                  ClipPath(
-                    clipper: SemiCircleClipper(direction: 1),
-                    child: MaterialButton(
-                      padding: EdgeInsets.only(bottom: 35),
-                      height: 75,
-                      elevation: 0,
-                      onPressed: () {
-                        print(1);
-                      },
-                      textColor: Colors.white,
-                      color: Colors.red,
-                      child: Text('OFF', style: TextStyle(fontSize: 16)),
-                      shape: CircleBorder(),
-                    ),
-                  ),
-                  ClipPath(
-                    clipper: SemiCircleClipper(direction: -1),
-                    child: MaterialButton(
-                      padding: EdgeInsets.only(top: 35),
-                      height: 75,
-                      elevation: 0,
-                      onPressed: () {},
-                      textColor: Colors.white,
-                      color: Colors.green,
-                      child: Text('ON', style: TextStyle(fontSize: 16)),
-                      shape: CircleBorder(),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Align(
-              alignment: Alignment.topRight,
-              child: MaterialButton(
-                height: 75,
-                elevation: 5,
-                onPressed: () {},
-                textColor: Colors.white,
-                color: Colors.orange,
-                child: Text('STOP', style: TextStyle(fontSize: 20)),
-                shape: CircleBorder(),
-              ),
-            ),
+            // Padding(
+            //   padding: EdgeInsets.only(top: 205),
+            //   child: Align(
+            //     alignment: Alignment.center,
+            //     child: MaterialButton(
+            //       onPressed: _onSpeedStep,
+            //       textColor: Colors.white,
+            //       child: Icon(Icons.linear_scale),
+            //       shape: CircleBorder(),
+            //     ),
+            //   ),
+            // ),
+            // Align(
+            //   alignment: Alignment.topLeft,
+            //   child: Stack(
+            //     children: [
+            //       MaterialButton(
+            //         height: 75,
+            //         elevation: 5,
+            //         onPressed: () {},
+            //         color: Colors.transparent,
+            //         shape: CircleBorder(),
+            //       ),
+            //       ClipPath(
+            //         clipper: SemiCircleClipper(direction: 1),
+            //         child: MaterialButton(
+            //           padding: EdgeInsets.only(bottom: 35),
+            //           height: 75,
+            //           elevation: 0,
+            //           onPressed: () {
+            //             print(1);
+            //           },
+            //           textColor: Colors.white,
+            //           color: Colors.red,
+            //           child: Text('OFF', style: TextStyle(fontSize: 16)),
+            //           shape: CircleBorder(),
+            //         ),
+            //       ),
+            //       ClipPath(
+            //         clipper: SemiCircleClipper(direction: -1),
+            //         child: MaterialButton(
+            //           padding: EdgeInsets.only(top: 35),
+            //           height: 75,
+            //           elevation: 0,
+            //           onPressed: () {},
+            //           textColor: Colors.white,
+            //           color: Colors.green,
+            //           child: Text('ON', style: TextStyle(fontSize: 16)),
+            //           shape: CircleBorder(),
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            // Align(
+            //   alignment: Alignment.topRight,
+            //   child: MaterialButton(
+            //     height: 75,
+            //     elevation: 5,
+            //     onPressed: () {},
+            //     textColor: Colors.white,
+            //     color: Colors.orange,
+            //     child: Text('STOP', style: TextStyle(fontSize: 20)),
+            //     shape: CircleBorder(),
+            //   ),
+            // ),
           ],
         ),
-        Align(
-          alignment: AlignmentDirectional.center,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Column(
+        Expanded(
+          child: Align(
+            alignment: AlignmentDirectional.center,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                /*Column(
                 children: [
                   ...List.generate(
                     _buttonsPerPage,
@@ -270,6 +324,9 @@ class _LocomotivePageState extends State<LocomotivePage> {
                             padding: EdgeInsets.only(left: 5, right: 5),
                             child: OutlinedButton(
                               onPressed: () {},
+                              style: OutlinedButton.styleFrom(
+                                primary: Theme.of(context).primaryColor,
+                              ),
                               child: (i == 0 && j == 0)
                                   ? Icon(Icons.lightbulb)
                                   : Text('F${n}'),
@@ -280,54 +337,94 @@ class _LocomotivePageState extends State<LocomotivePage> {
                     ),
                   ),
                 ],
-              ),
-              Listener(
-                onPointerUp: _onVisualSpeedChanged,
-                child: SfSlider.vertical(
-                  min: 0.0,
-                  max: _speedStep,
-                  value: _speed,
-                  interval: _speedInterval.toDouble(),
-                  showTicks: true,
-                  showLabels: true,
-                  minorTicksPerInterval: 1,
-                  onChanged: _onSpeedChanged,
-                  thumbIcon: Icon(
-                    Icons.drag_handle,
-                    color: Colors.white,
-                    size: 17.0,
-                  ),
-                ),
-              ),
-              Listener(
-                onPointerUp: (_) => _forceSpeed(0),
-                child: SfSliderTheme(
-                  data: SfSliderThemeData(
-                    activeTrackHeight: 5,
-                    inactiveTrackHeight: 5,
-                    trackCornerRadius: 5,
-                  ),
-                  child: SfSlider.vertical(
-                    min: -1,
-                    max: 1,
-                    value: _direction,
-                    interval: 1,
-                    stepSize: 1,
-                    showLabels: true,
-                    onChanged: _onDirectionChanged,
-                    labelFormatterCallback: (value, _) {
-                      return ['R', 'N', 'F'][value.toInt() + 1];
-                    },
-                    thumbIcon: Icon(
-                      Icons.unfold_more,
-                      color: Colors.white,
-                      size: 17.0,
+              ),*/
+                Listener(
+                  onPointerUp: _onVisualSpeedChanged,
+                  child: SfSliderTheme(
+                    data: SfSliderThemeData(
+                      tickOffset: Offset(-0.9, 0.1),
+                      thumbRadius: 12,
+                      trackCornerRadius: 0,
+                      activeTrackHeight: 5,
+                      inactiveTrackHeight: 4,
+                      activeLabelStyle: GoogleFonts.lato(
+                        color: Theme.of(context).primaryColor.withOpacity(0.88),
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      inactiveLabelStyle: GoogleFonts.lato(
+                        color: Colors.grey,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      disabledInactiveTrackColor:
+                          Theme.of(context).primaryColor.withOpacity(0.05),
+                      activeTickColor:
+                          Theme.of(context).primaryColor.withOpacity(0.40),
+                      inactiveTickColor:
+                          Theme.of(context).primaryColor.withOpacity(0.40),
+                      disabledInactiveTickColor:
+                          Theme.of(context).primaryColor.withOpacity(0.20),
                     ),
-                    trackShape: _SfTrackShape(),
+                    child: SfSlider.vertical(
+                      min: 0,
+                      max: _speedStep,
+                      value: _speed,
+                      interval: _speedInterval.toDouble(),
+                      showLabels: true,
+                      showTicks: true,
+                      onChanged: _direction != 0 ? _onSpeedChanged : null,
+                      thumbIcon: Icon(
+                        Icons.drag_handle,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                      labelFormatterCallback: (value, s) =>
+                          value == 0 && _speed == 0 ? '' : s,
+                    ),
                   ),
                 ),
-              ),
-            ],
+                Listener(
+                  onPointerUp: (_) {},
+                  child: SfSliderTheme(
+                    data: SfSliderThemeData(
+                      activeTrackHeight: 5,
+                      inactiveTrackHeight: 5,
+                      trackCornerRadius: 5,
+                      thumbRadius: 12,
+                      activeLabelStyle: GoogleFonts.lato(
+                        color: Colors.grey,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      inactiveLabelStyle: GoogleFonts.lato(
+                        color: Colors.grey,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    child: SfSlider.vertical(
+                      min: -1,
+                      max: 1,
+                      value: _direction,
+                      interval: 1,
+                      stepSize: 1,
+                      showLabels: true,
+                      onChanged: _onDirectionChanged,
+                      labelFormatterCallback: (value, _) {
+                        return ['R', 'N', 'F'][value.toInt() + 1];
+                      },
+                      thumbIcon: Icon(
+                        Icons.unfold_more,
+                        color: Colors.white,
+                        size: 18.0,
+                      ),
+                      trackShape: _SfTrackShape(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -352,10 +449,12 @@ class _SfTrackShape extends SfTrackShape {
     required Paint? activePaint,
     required TextDirection textDirection,
   }) {
-    inactivePaint = Paint();
     final ColorTween inactiveTrackColorTween = ColorTween(
-        begin: themeData.disabledInactiveTrackColor,
-        end: themeData.inactiveTrackColor);
+      begin: themeData.disabledInactiveTrackColor,
+      end: themeData.inactiveTrackColor,
+    );
+
+    inactivePaint = Paint();
     inactivePaint.color = inactiveTrackColorTween.evaluate(enableAnimation)!;
 
     super.paint(
