@@ -13,7 +13,7 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-    const size = Size(397, 697);
+    const size = Size(402, 697);
     window.setWindowMinSize(size);
     window.setWindowMaxSize(size);
   }
@@ -36,7 +36,7 @@ class App extends StatelessWidget {
       theme: ThemeData(
         brightness: Brightness.light,
         primaryColor: primaryColor,
-        scaffoldBackgroundColor: backgroundColor,
+        backgroundColor: Colors.transparent,
         canvasColor: Colors.transparent,
         primaryTextTheme: TextTheme(
           headline6: GoogleFonts.lato(
@@ -109,6 +109,7 @@ class _HomePageState extends State<HomePage> {
       //     // ),
       //   ],
       // ),
+      extendBody: true,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -121,7 +122,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         child: Padding(
-          padding: EdgeInsets.all(7),
+          padding: EdgeInsets.only(bottom: 70, left: 5, right: 5),
           child: IndexedStack(
             index: _selectedPage,
             children: _pages,
@@ -144,14 +145,17 @@ class _HomePageState extends State<HomePage> {
             BottomNavigationBarItem(
               icon: Icon(Icons.train),
               label: 'Locomotive',
+              tooltip: '',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.alt_route),
               label: 'Accessories',
+              tooltip: '',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.amp_stories),
               label: 'CV',
+              tooltip: '',
             ),
           ],
         ),
