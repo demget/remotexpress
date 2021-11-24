@@ -3,7 +3,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:remotexpress/pages/accessories.dart';
 import 'package:remotexpress/pages/debug.dart';
 import 'package:remotexpress/pages/locomotive.dart';
@@ -15,7 +14,6 @@ void main() {
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     const size = Size(402, 697);
     window.setWindowMinSize(size);
-    window.setWindowMaxSize(size);
   }
 
   runApp(App());
@@ -24,9 +22,9 @@ void main() {
 class App extends StatelessWidget {
   static const String title = 'remoteXpress';
 
-  static const Color backgroundColor = Color.fromARGB(0xff, 34, 34, 57);
-  // static const Color backgroundColor = Color.fromARGB(0xff, 41, 40, 69);
+  static const Color backgroundColor = Color.fromARGB(0xff, 33, 33, 47);
   static const Color primaryColor = Color.fromARGB(0xff, 125, 123, 250);
+  static const Color primaryColorDark = Color.fromARGB(0xff, 60, 62, 107);
 
   @override
   Widget build(BuildContext context) {
@@ -35,18 +33,17 @@ class App extends StatelessWidget {
       themeMode: ThemeMode.light,
       theme: ThemeData(
         brightness: Brightness.light,
-        primaryColor: primaryColor,
-        backgroundColor: Colors.transparent,
         canvasColor: Colors.transparent,
-        primaryTextTheme: TextTheme(
-          headline6: GoogleFonts.lato(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+        backgroundColor: backgroundColor,
+        primaryColor: primaryColor,
+        primaryColorDark: primaryColorDark,
+        colorScheme: ColorScheme.light(
+          primary: primaryColor,
         ),
-        appBarTheme: AppBarTheme(
-          elevation: 0,
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
           backgroundColor: backgroundColor,
+          selectedItemColor: primaryColor,
+          unselectedItemColor: Colors.white54,
         ),
       ),
       debugShowCheckedModeBanner: false,
@@ -65,8 +62,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  static const _debugPageIndex = 2;
-
   List<Widget> _pages = <Widget>[];
   int _selectedPage = 0;
 
@@ -91,24 +86,6 @@ class _HomePageState extends State<HomePage> {
     ]);
 
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text(widget.title),
-      //   // centerTitle: true,
-      //   elevation: AppBarTheme.of(context).elevation,
-      //   actions: [
-      //     // IconButton(
-      //     //   icon: Icon(Icons.bug_report),
-      //     //   onPressed: () => _onNavigationItem(_debugPageIndex),
-      //     // ),
-      //     // IconButton(
-      //     //   icon: Icon(Icons.keyboard_voice),
-      //     //   color: Theme.of(context).primaryColor,
-      //     //   focusColor: Colors.grey,
-      //     //   autofocus: true,
-      //     //   onPressed: () {},
-      //     // ),
-      //   ],
-      // ),
       extendBody: true,
       body: Container(
         decoration: BoxDecoration(
@@ -135,9 +112,6 @@ class _HomePageState extends State<HomePage> {
           topRight: Radius.circular(30.0),
         ),
         child: BottomNavigationBar(
-          backgroundColor: Color.fromARGB(0xff, 33, 33, 47),
-          selectedItemColor: Theme.of(context).primaryColor,
-          unselectedItemColor: Colors.white54,
           elevation: 5,
           currentIndex: _selectedPage,
           onTap: _onNavigationItem,

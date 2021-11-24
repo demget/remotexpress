@@ -8,21 +8,25 @@ class AnimatedToggle extends StatefulWidget {
   final Color buttonColor;
   final Color textColor;
 
+  int index = 0;
+
   AnimatedToggle({
     required this.values,
     required this.onToggleCallback,
+    this.index = 0,
     this.width = 250,
     this.backgroundColor = const Color(0xFFe7e7e8),
     this.buttonColor = const Color(0xFFFFFFFF),
     this.textColor = const Color(0xFF000000),
-  });
+  }) {
+    assert(values.length == 3);
+  }
+
   @override
   _AnimatedToggleState createState() => _AnimatedToggleState();
 }
 
 class _AnimatedToggleState extends State<AnimatedToggle> {
-  int index = 0;
-
   @override
   Widget build(BuildContext context) {
     final int length = widget.values.length - 1;
@@ -46,22 +50,24 @@ class _AnimatedToggleState extends State<AnimatedToggle> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: List.generate(
                 widget.values.length,
-                (i) => GestureDetector(
-                  onTap: () {
-                    // index = index == length ? 0 : index + 1;
-                    index = i;
-                    widget.onToggleCallback(i);
-                    setState(() {});
-                  },
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: width * 0.1),
-                    child: Text(
-                      widget.values[i],
-                      style: TextStyle(
-                        fontFamily: 'Rubik',
-                        fontSize: width * 0.05,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF918f95),
+                (i) => MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    onTap: () {
+                      widget.index = i;
+                      widget.onToggleCallback(i);
+                      setState(() {});
+                    },
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: width * 0.1),
+                      child: Text(
+                        widget.values[i],
+                        style: TextStyle(
+                          fontFamily: 'Rubik',
+                          fontSize: width * 0.05,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF918f95),
+                        ),
                       ),
                     ),
                   ),
@@ -76,7 +82,7 @@ class _AnimatedToggleState extends State<AnimatedToggle> {
               Alignment.centerLeft,
               Alignment.center,
               Alignment.centerRight
-            ][index],
+            ][widget.index],
             child: Container(
               width: width * 0.35,
               height: width * 0.13,
@@ -87,7 +93,7 @@ class _AnimatedToggleState extends State<AnimatedToggle> {
                 ),
               ),
               child: Text(
-                widget.values[index],
+                widget.values[widget.index],
                 style: TextStyle(
                   fontFamily: 'Rubik',
                   fontSize: width * 0.045,

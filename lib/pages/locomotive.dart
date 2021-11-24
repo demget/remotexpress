@@ -1,6 +1,8 @@
 import 'package:countup/countup.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:remotexpress/net/loco.dart';
+import 'package:remotexpress/net/station.dart';
 import 'package:remotexpress/widgets/animated_toggle.dart';
 
 import 'package:syncfusion_flutter_core/theme.dart';
@@ -16,30 +18,46 @@ class LocomotivePage extends StatefulWidget {
 
 class _LocomotivePageState extends State<LocomotivePage> {
   static const _speedSteps = [14, 28, 128];
-  static const _buttonsPerPage = 4;
-
-  // Visual data
-  int _speedInterval = 4;
-  int _visualSpeed = 0;
-  int _previousSpeed = 0;
 
   void _onSpeedStepLabel(AxisLabelCreatedArgs args) {
     args.text = _speedSteps[int.parse(args.text) - 1].toString();
   }
 
-  int _power = 0;
-  int _speed = 0;
-  int _speedStep = 28;
   int _speedStepIndex = 2;
-  int _direction = 0;
+
+  int _speedStep() {
+    return _speedSteps[_speedStepIndex - 1];
+  }
+
+  int _speedInterval() {
+    int speedStep = _speedStep();
+    return speedStep == 128 ? 16 : speedStep ~/ 7;
+  }
+
+  int _previousSpeed = 0;
+  int _visualSpeed = 0;
 
   void _forceSpeed(int value) {
     _previousSpeed = _visualSpeed;
     _speed = _visualSpeed = value;
   }
 
+  int _power = 0;
+  int _speed = 0;
+  int _direction = 0;
+
+  void _onPowerChanged(value) {
+    setState(() {
+      _power = value;
+      if (_power != StationPower.idle) {
+        _direction = LocoDirections.neutral;
+        _forceSpeed(0);
+      }
+    });
+  }
+
   void _onSpeedChanged(dynamic value) {
-    if (value > _speedStep) return;
+    if (value > _speedStep()) return;
 
     setState(() {
       _speed = value.round();
@@ -59,8 +77,6 @@ class _LocomotivePageState extends State<LocomotivePage> {
       if (_speedStepIndex == index) return;
 
       _speedStepIndex = index;
-      _speedStep = _speedSteps[_speedStepIndex - 1];
-      _speedInterval = _speedStep == 128 ? 16 : _speedStep ~/ 7;
       _forceSpeed(0);
     });
   }
@@ -70,7 +86,11 @@ class _LocomotivePageState extends State<LocomotivePage> {
       int direction = value.toInt();
       if (_direction == direction) return;
 
-      _direction = value.toInt();
+      if (direction != LocoDirections.neutral) {
+        _power = StationPower.idle;
+      }
+
+      _direction = direction;
       _forceSpeed(0);
     });
   }
@@ -99,20 +119,17 @@ class _LocomotivePageState extends State<LocomotivePage> {
                 (j) {
                   int n = i + j * rows + offset + 1;
                   return Padding(
-                    padding: EdgeInsets.only(
-                      top: 5,
-                      bottom: 5,
-                    ),
+                    padding: EdgeInsets.only(top: 5, bottom: 5),
                     child: OutlinedButton(
                       onPressed: () {},
                       style: OutlinedButton.styleFrom(
-                        primary: Theme.of(context).primaryColor,
-                        backgroundColor: Color.fromRGBO(60, 62, 107, 1),
+                        primary: Colors.grey[400],
+                        backgroundColor: Theme.of(context).primaryColorDark,
                         side: BorderSide.none,
-                        elevation: 3,
                         shape: StadiumBorder(),
+                        elevation: 3,
                       ),
-                      child: Text('F${n}'),
+                      child: Text('F$n'),
                     ),
                   );
                 },
@@ -136,18 +153,11 @@ class _LocomotivePageState extends State<LocomotivePage> {
               Padding(
                 padding: EdgeInsets.only(top: 20),
                 child: AnimatedToggle(
-                  onToggleCallback: (value) {
-                    setState(() {
-                      _power = value;
-                      if (_power == 2) {
-                        _direction = 0;
-                        _forceSpeed(0);
-                      }
-                    });
-                  },
+                  onToggleCallback: _onPowerChanged,
+                  index: _power,
                   values: ['IDLE', 'STOP', 'OFF'],
                   width: 250,
-                  backgroundColor: Color.fromARGB(0xff, 33, 33, 47),
+                  backgroundColor: Theme.of(context).backgroundColor,
                   buttonColor: [
                     Color.fromARGB(0xff, 77, 172, 100),
                     Color.fromARGB(0xff, 234, 192, 49),
@@ -199,36 +209,20 @@ class _LocomotivePageState extends State<LocomotivePage> {
                           markerWidth: 12,
                           markerHeight: 12,
                           color: Colors.grey[100],
-                          // Color.fromARGB(0xff, 77, 172, 100),
-                          // Color.fromARGB(0xff, 234, 192, 49),
-                          // Color(0xffb279a7),
                           offsetUnit: GaugeSizeUnit.factor,
                           overlayRadius: 12,
                         ),
                       ],
                       axisLineStyle: AxisLineStyle(
-                        thicknessUnit: GaugeSizeUnit.factor,
                         thickness: 0.06,
+                        thicknessUnit: GaugeSizeUnit.factor,
                         cornerStyle: CornerStyle.bothCurve,
                         color: Colors.grey[100],
-                        // Color.fromARGB(0xff, 77, 172, 100)
-                        //  Color.fromARGB(0xff, 234, 192, 49),
-                        // gradient: SweepGradient(
-                        //   colors: <Color>[
-                        //     Color(0xffb279a7),
-                        //     Color(0xffd387ab),
-                        //   ],
-                        // ),
                       ),
                       axisLabelStyle: GaugeTextStyle(
                         color: Colors.grey,
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
-                      ),
-                      majorTickStyle: MajorTickStyle(
-                        length: 8,
-                        thickness: 2,
-                        color: Color(0xffd387ab),
                       ),
                     ),
                     RadialAxis(
@@ -239,13 +233,13 @@ class _LocomotivePageState extends State<LocomotivePage> {
                       canRotateLabels: true,
                       showTicks: false,
                       minimum: 0,
-                      maximum: _speedStep.toDouble() + 0.01,
-                      interval: _speedInterval.toDouble(),
+                      maximum: _speedStep() + 0.01,
+                      interval: _speedInterval().toDouble(),
                       labelOffset: 20,
                       ranges: [
                         GaugeRange(
                           startValue: 0,
-                          endValue: _speedStep.toDouble(),
+                          endValue: _speedStep().toDouble(),
                           sizeUnit: GaugeSizeUnit.factor,
                           startWidth: 0.07,
                           endWidth: 0.07,
@@ -261,7 +255,6 @@ class _LocomotivePageState extends State<LocomotivePage> {
                           animationType: AnimationType.ease,
                           animationDuration: 500,
                           color: Theme.of(context).primaryColor,
-                          // Color.fromARGB(0xff, 77, 172, 100),
                           cornerStyle: CornerStyle.bothCurve,
                           width: 15,
                         ),
@@ -280,20 +273,13 @@ class _LocomotivePageState extends State<LocomotivePage> {
                                 fontWeight: FontWeight.w300,
                               ),
                             ),
-                            // child: Text(
-                            //   _visualSpeed.toString(),
-                            //   textScaleFactor: 8,
-                            //   style: GoogleFonts.lato(
-                            //     color: Colors.grey[350],
-                            //     fontWeight: FontWeight.w300,
-                            //   ),
                           ),
                           positionFactor: 0.03,
                         ),
                       ],
                       axisLineStyle: AxisLineStyle(
-                        thicknessUnit: GaugeSizeUnit.factor,
                         thickness: 0.08,
+                        thicknessUnit: GaugeSizeUnit.factor,
                         cornerStyle: CornerStyle.bothCurve,
                         color: Theme.of(context).primaryColor.withOpacity(0.28),
                       ),
@@ -314,102 +300,6 @@ class _LocomotivePageState extends State<LocomotivePage> {
                   ],
                 ),
               ),
-              // Padding(
-              //   padding: EdgeInsets.only(top: 38, left: 0),
-              //   child: Align(
-              //     alignment: Alignment.topLeft,
-              //     child: ElevatedButton(
-              //       onPressed: () {},
-              //       child: Icon(Icons.stop_rounded, size: 40),
-              //       style: ElevatedButton.styleFrom(
-              //         shape: CircleBorder(),
-              //         primary: Color.fromRGBO(233, 190, 65, 1),
-              //         fixedSize: Size(40, 50),
-              //       ),
-              //     ),
-              //   ),
-              // ),
-              // Padding(
-              //   padding: EdgeInsets.only(top: 38, right: 0),
-              //   child: Align(
-              //     alignment: Alignment.topRight,
-              //     child: ElevatedButton(
-              //       onPressed: () {},
-              //       child: Icon(Icons.power_settings_new, size: 40),
-              //       style: ElevatedButton.styleFrom(
-              //         shape: CircleBorder(),
-              //         primary: Theme.of(context).primaryColor,
-              //         fixedSize: Size(48, 48),
-              //       ),
-              //     ),
-              //   ),
-              // ),
-              // Padding(
-              //   padding: EdgeInsets.only(top: 205),
-              //   child: Align(
-              //     alignment: Alignment.center,
-              //     child: MaterialButton(
-              //       onPressed: _onSpeedStep,
-              //       textColor: Colors.white,
-              //       child: Icon(Icons.linear_scale),
-              //       shape: CircleBorder(),
-              //     ),
-              //   ),
-              // ),
-              // Align(
-              //   alignment: Alignment.topLeft,
-              //   child: Stack(
-              //     children: [
-              //       MaterialButton(
-              //         height: 75,
-              //         elevation: 5,
-              //         onPressed: () {},
-              //         color: Colors.transparent,
-              //         shape: CircleBorder(),
-              //       ),
-              //       ClipPath(
-              //         clipper: SemiCircleClipper(direction: 1),
-              //         child: MaterialButton(
-              //           padding: EdgeInsets.only(bottom: 35),
-              //           height: 75,
-              //           elevation: 0,
-              //           onPressed: () {
-              //             print(1);
-              //           },
-              //           textColor: Colors.white,
-              //           color: Colors.red,
-              //           child: Text('OFF', style: TextStyle(fontSize: 16)),
-              //           shape: CircleBorder(),
-              //         ),
-              //       ),
-              //       ClipPath(
-              //         clipper: SemiCircleClipper(direction: -1),
-              //         child: MaterialButton(
-              //           padding: EdgeInsets.only(top: 35),
-              //           height: 75,
-              //           elevation: 0,
-              //           onPressed: () {},
-              //           textColor: Colors.white,
-              //           color: Colors.green,
-              //           child: Text('ON', style: TextStyle(fontSize: 16)),
-              //           shape: CircleBorder(),
-              //         ),
-              //       ),
-              //     ],
-              //   ),
-              // ),
-              // Align(
-              //   alignment: Alignment.topRight,
-              //   child: MaterialButton(
-              //     height: 75,
-              //     elevation: 5,
-              //     onPressed: () {},
-              //     textColor: Colors.white,
-              //     color: Colors.orange,
-              //     child: Text('STOP', style: TextStyle(fontSize: 20)),
-              //     shape: CircleBorder(),
-              //   ),
-              // ),
             ],
           ),
         ),
@@ -420,7 +310,7 @@ class _LocomotivePageState extends State<LocomotivePage> {
           child: Align(
             alignment: Alignment.center,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 generateFunctionButtons(2, 5),
                 Listener(
@@ -442,24 +332,24 @@ class _LocomotivePageState extends State<LocomotivePage> {
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                       ),
-                      disabledThumbColor: Color.fromARGB(0xff, 33, 33, 47),
-                      disabledInactiveTrackColor:
-                          Theme.of(context).primaryColor.withOpacity(0.05),
                       activeTickColor:
                           Theme.of(context).primaryColor.withOpacity(0.40),
                       inactiveTickColor:
                           Theme.of(context).primaryColor.withOpacity(0.40),
                       disabledInactiveTickColor:
-                          Theme.of(context).primaryColor.withOpacity(0.20),
+                          Theme.of(context).backgroundColor,
+                      disabledThumbColor: Theme.of(context).backgroundColor,
                     ),
                     child: SfSlider.vertical(
                       min: 0,
-                      max: _speedStep,
+                      max: _speedStep(),
                       value: _speed,
-                      interval: _speedInterval.toDouble(),
+                      interval: _speedInterval().toDouble(),
                       showLabels: true,
                       showTicks: true,
-                      onChanged: _direction != 0 ? _onSpeedChanged : null,
+                      onChanged: _direction != LocoDirections.neutral
+                          ? _onSpeedChanged
+                          : null,
                       thumbIcon: Icon(
                         Icons.drag_handle,
                         color: Colors.white,
@@ -488,16 +378,18 @@ class _LocomotivePageState extends State<LocomotivePage> {
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                       ),
-                      // labelOffset: Offset(-25, 0),
+                      disabledThumbColor: Theme.of(context).backgroundColor,
                     ),
                     child: SfSlider.vertical(
-                      min: -1,
-                      max: 1,
+                      min: LocoDirections.reverse,
+                      max: LocoDirections.forward,
                       value: _direction,
                       interval: 1,
                       stepSize: 1,
                       showLabels: true,
-                      onChanged: _onDirectionChanged,
+                      onChanged: _power != StationPower.off
+                          ? _onDirectionChanged
+                          : null,
                       labelFormatterCallback: (value, _) {
                         return ['R', 'N', 'F'][value.toInt() + 1];
                       },
