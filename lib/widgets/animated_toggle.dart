@@ -4,6 +4,7 @@ class AnimatedToggle extends StatefulWidget {
   final List<String> values;
   final ValueChanged onToggleCallback;
   final double width;
+  final double heightScale;
   final Color backgroundColor;
   final Color buttonColor;
   final Color textColor;
@@ -15,6 +16,7 @@ class AnimatedToggle extends StatefulWidget {
     required this.onToggleCallback,
     this.index = 0,
     this.width = 250,
+    this.heightScale = 1,
     this.backgroundColor = const Color(0xFFe7e7e8),
     this.buttonColor = const Color(0xFFFFFFFF),
     this.textColor = const Color(0xFF000000),
@@ -31,15 +33,16 @@ class _AnimatedToggleState extends State<AnimatedToggle> {
   Widget build(BuildContext context) {
     final int length = widget.values.length - 1;
     final double width = widget.width;
+    final double height = width * 0.13 * widget.heightScale;
 
     return Container(
       width: width * 0.7 * length,
-      height: width * 0.13,
+      height: height,
       child: Stack(
         children: [
           Container(
             width: width * 0.7 * length,
-            height: width * 0.13,
+            height: height,
             decoration: ShapeDecoration(
               color: widget.backgroundColor,
               shape: RoundedRectangleBorder(
@@ -59,8 +62,9 @@ class _AnimatedToggleState extends State<AnimatedToggle> {
                       setState(() {});
                     },
                     child: Container(
-                      height: width * 0.13,
+                      height: height,
                       alignment: Alignment.center,
+                      color: Colors.transparent,
                       padding: EdgeInsets.symmetric(horizontal: width * 0.1),
                       child: Text(
                         widget.values[i],
@@ -87,7 +91,7 @@ class _AnimatedToggleState extends State<AnimatedToggle> {
             ][widget.index],
             child: Container(
               width: width * 0.35,
-              height: width * 0.13,
+              height: height,
               decoration: ShapeDecoration(
                 color: widget.buttonColor,
                 shape: RoundedRectangleBorder(

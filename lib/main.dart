@@ -3,8 +3,10 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:remotexpress/l10n.dart';
 import 'package:remotexpress/pages/accessories.dart';
 import 'package:remotexpress/pages/debug.dart';
+import 'package:remotexpress/pages/launch.dart';
 import 'package:remotexpress/pages/locomotive.dart';
 import 'package:window_size/window_size.dart' as window;
 
@@ -31,6 +33,8 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: title,
       themeMode: ThemeMode.light,
+      localizationsDelegates: L10n.localizationsDelegates,
+      supportedLocales: L10n.supportedLocales,
       theme: ThemeData(
         brightness: Brightness.light,
         canvasColor: Colors.transparent,
@@ -62,6 +66,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool _connected = false;
+  late Widget _bodyWidget;
+
   List<Widget> _pages = <Widget>[];
   int _selectedPage = 0;
 
@@ -73,6 +80,18 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+    _bodyWidget = LaunchPage(
+      onLaunched: () {
+        setState(() {
+          _connected = true;
+          _bodyWidget = Padding(
+            padding: EdgeInsets.only(left: 5, right: 5, bottom: 50),
+            child: IndexedStack(index: _selectedPage, children: _pages),
+          );
+        });
+      },
+    );
+
     _pages.add(LocomotivePage());
     _pages.add(AccessoriesPage());
     _pages.add(DebugPage());
@@ -101,42 +120,41 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         ),
-        child: Padding(
-          padding: EdgeInsets.only(bottom: 70, left: 5, right: 5),
-          child: IndexedStack(
-            index: _selectedPage,
-            children: _pages,
-          ),
+        child: AnimatedSwitcher(
+          duration: const Duration(seconds: 1),
+          child: _bodyWidget,
         ),
       ),
-      bottomNavigationBar: ClipRRect(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(30.0),
-          topRight: Radius.circular(30.0),
-        ),
-        child: BottomNavigationBar(
-          elevation: 5,
-          currentIndex: _selectedPage,
-          onTap: _onNavigationItem,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.train),
-              label: 'Locomotive',
-              tooltip: '',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.alt_route),
-              label: 'Accessories',
-              tooltip: '',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.amp_stories),
-              label: 'CV',
-              tooltip: '',
-            ),
-          ],
-        ),
-      ),
+      bottomNavigationBar: _connected
+          ? ClipRRect(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(30.0),
+                topRight: Radius.circular(30.0),
+              ),
+              child: BottomNavigationBar(
+                elevation: 5,
+                currentIndex: _selectedPage,
+                onTap: _onNavigationItem,
+                items: const [
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.train),
+                    label: 'Locomotive',
+                    tooltip: '',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.alt_route),
+                    label: 'Accessories',
+                    tooltip: '',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.amp_stories),
+                    label: 'CV',
+                    tooltip: '',
+                  ),
+                ],
+              ),
+            )
+          : null,
     );
   }
 }
