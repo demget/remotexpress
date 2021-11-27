@@ -23,6 +23,12 @@ class _LocomotivePageState extends State<LocomotivePage> {
     args.text = _speedSteps[int.parse(args.text) - 1].toString();
   }
 
+  String _onSpeedLabel(dynamic value, String s) {
+    int interval = _speedInterval();
+    bool inRange = _speed > value - interval && _speed < value + interval;
+    return (value == 0 && _speed == 0) || inRange ? '' : s;
+  }
+
   int _speedStepIndex = 2;
 
   int _speedStep() {
@@ -44,7 +50,7 @@ class _LocomotivePageState extends State<LocomotivePage> {
 
   int _power = 0;
   int _speed = 0;
-  int _direction = 0;
+  int _direction = 1;
 
   void _onPowerChanged(value) {
     setState(() {
@@ -107,6 +113,8 @@ class _LocomotivePageState extends State<LocomotivePage> {
           rows,
           (i) => Padding(
             padding: EdgeInsets.only(
+              left: 5,
+              right: 5,
               top: reversed ? 25 : i * 50,
               bottom: reversed ? i * 50 : 25,
             ),
@@ -115,9 +123,10 @@ class _LocomotivePageState extends State<LocomotivePage> {
               children: List.generate(
                 columns,
                 (j) {
-                  int n = (reversed ? 1 - i : i) + j * rows + offset + 1;
+                  int n = (reversed ? 1 - i : i) + j * rows + offset;
                   return Container(
                     padding: EdgeInsets.only(top: 5, bottom: 5),
+                    width: 50,
                     child: OutlinedButton(
                       onPressed: () {},
                       style: OutlinedButton.styleFrom(
@@ -127,7 +136,9 @@ class _LocomotivePageState extends State<LocomotivePage> {
                         shape: StadiumBorder(),
                         elevation: 3,
                       ),
-                      child: Text('F$n'),
+                      child: n == 0
+                          ? Icon(Icons.lightbulb, size: 18)
+                          : Text('F$n', style: TextStyle(fontSize: 10)),
                     ),
                   );
                 },
@@ -141,18 +152,21 @@ class _LocomotivePageState extends State<LocomotivePage> {
 
   @override
   Widget build(BuildContext context) {
+    final height = MediaQuery.of(context).size.height;
+    final gaugeHeight = height / 2 * 0.98;
+
     return Stack(
       children: [
         Container(
-          height: MediaQuery.of(context).size.height / 2,
+          height: gaugeHeight,
           child: Stack(
             alignment: Alignment.topCenter,
             children: [
               Padding(
                 padding: EdgeInsets.only(
-                  top: 50,
-                  left: 10,
-                  right: 10,
+                  top: 55,
+                  left: 5,
+                  right: 5,
                 ),
                 child: SfRadialGauge(
                   axes: [
@@ -166,7 +180,7 @@ class _LocomotivePageState extends State<LocomotivePage> {
                       showAxisLine: true,
                       showTicks: false,
                       minorTicksPerInterval: 0,
-                      centerY: 0.65,
+                      centerY: 0.75,
                       labelOffset: 20,
                       isInversed: true,
                       onLabelCreated: _onSpeedStepLabel,
@@ -284,13 +298,14 @@ class _LocomotivePageState extends State<LocomotivePage> {
               ),
               Padding(
                 padding: EdgeInsets.only(
-                  top: MediaQuery.of(context).padding.top + 25,
+                  top: MediaQuery.of(context).padding.top + 10,
                 ),
                 child: AnimatedToggle(
                   onToggleCallback: _onPowerChanged,
                   index: _power,
                   values: ['IDLE', 'STOP', 'OFF'],
                   width: 250,
+                  heightScale: 1.5,
                   backgroundColor: Theme.of(context).backgroundColor,
                   buttonColor: [
                     Color.fromARGB(0xff, 77, 172, 100),
@@ -305,107 +320,104 @@ class _LocomotivePageState extends State<LocomotivePage> {
         ),
         Container(
           padding: EdgeInsets.only(
-            top: MediaQuery.of(context).size.height / 2 - 10,
-            // bottom: MediaQuery.of(context).padding.bottom,
+            top: height - gaugeHeight,
+            bottom: 20,
           ),
-          child: Align(
-            alignment: Alignment.center,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                generateFunctionButtons(2, 5),
-                Listener(
-                  onPointerUp: _onVisualSpeedChanged,
-                  child: SfSliderTheme(
-                    data: SfSliderThemeData(
-                      tickOffset: Offset(-0.2, 0.1),
-                      thumbRadius: 12,
-                      trackCornerRadius: 0,
-                      activeTrackHeight: 5,
-                      inactiveTrackHeight: 4,
-                      activeLabelStyle: GoogleFonts.lato(
-                        color: Theme.of(context).primaryColor.withOpacity(0.88),
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      inactiveLabelStyle: GoogleFonts.lato(
-                        color: Colors.grey,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      activeTickColor:
-                          Theme.of(context).primaryColor.withOpacity(0.40),
-                      inactiveTickColor:
-                          Theme.of(context).primaryColor.withOpacity(0.40),
-                      disabledInactiveTickColor:
-                          Theme.of(context).backgroundColor,
-                      disabledThumbColor: Theme.of(context).backgroundColor,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              generateFunctionButtons(2, 5),
+              Padding(padding: EdgeInsets.only(left: 5, right: 5)),
+              Listener(
+                onPointerUp: _onVisualSpeedChanged,
+                child: SfSliderTheme(
+                  data: SfSliderThemeData(
+                    thumbRadius: 22,
+                    trackCornerRadius: 16,
+                    activeTrackHeight: 16,
+                    inactiveTrackHeight: 14,
+                    labelOffset: Offset(6, 0),
+                    activeLabelStyle: GoogleFonts.lato(
+                      color: Theme.of(context).primaryColor.withOpacity(0.88),
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
                     ),
-                    child: SfSlider.vertical(
-                      min: 0,
-                      max: _speedStep(),
-                      value: _speed,
-                      interval: _speedInterval().toDouble(),
-                      showLabels: true,
-                      showTicks: true,
-                      onChanged: _direction != LocoDirections.neutral
-                          ? _onSpeedChanged
-                          : null,
-                      thumbIcon: Icon(
-                        Icons.drag_handle,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                      labelFormatterCallback: (value, s) =>
-                          value == 0 && _speed == 0 ? '' : s,
+                    inactiveLabelStyle: GoogleFonts.lato(
+                      color: Colors.grey,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
                     ),
+                    activeTickColor:
+                        Theme.of(context).primaryColor.withOpacity(0.40),
+                    inactiveTickColor:
+                        Theme.of(context).primaryColor.withOpacity(0.40),
+                    disabledInactiveTickColor:
+                        Theme.of(context).backgroundColor,
+                    disabledThumbColor: Theme.of(context).backgroundColor,
+                  ),
+                  child: SfSlider.vertical(
+                    min: 0,
+                    max: _speedStep(),
+                    value: _speed,
+                    interval: _speedInterval().toDouble(),
+                    showLabels: true,
+                    showTicks: false,
+                    onChanged: _direction != LocoDirections.neutral
+                        ? _onSpeedChanged
+                        : null,
+                    thumbIcon: Icon(
+                      Icons.drag_handle,
+                      color: Colors.white,
+                      size: 26,
+                    ),
+                    labelFormatterCallback: _onSpeedLabel,
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.only(right: 15),
-                  child: SfSliderTheme(
-                    data: SfSliderThemeData(
-                      activeTrackHeight: 5,
-                      inactiveTrackHeight: 5,
-                      trackCornerRadius: 5,
-                      thumbRadius: 12,
-                      activeLabelStyle: GoogleFonts.lato(
-                        color: Colors.grey,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      inactiveLabelStyle: GoogleFonts.lato(
-                        color: Colors.grey,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      disabledThumbColor: Theme.of(context).backgroundColor,
-                    ),
-                    child: SfSlider.vertical(
-                      min: LocoDirections.reverse,
-                      max: LocoDirections.forward,
-                      value: _direction,
-                      interval: 1,
-                      stepSize: 1,
-                      showLabels: true,
-                      onChanged: _power != StationPower.off
-                          ? _onDirectionChanged
-                          : null,
-                      labelFormatterCallback: (value, _) {
-                        return ['R', 'N', 'F'][value.toInt() + 1];
-                      },
-                      thumbIcon: Icon(
-                        Icons.unfold_more,
+              ),
+              Padding(padding: EdgeInsets.only(left: 10, right: 10)),
+              SfSliderTheme(
+                data: SfSliderThemeData(
+                  activeTrackHeight: 8,
+                  inactiveTrackHeight: 8,
+                  trackCornerRadius: 4,
+                  thumbRadius: 15,
+                  activeLabelStyle: GoogleFonts.lato(
+                    color: Colors.grey,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  inactiveLabelStyle: GoogleFonts.lato(
+                    color: Colors.grey,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  disabledThumbColor: Theme.of(context).backgroundColor,
+                  activeDividerColor: Theme.of(context).primaryColor,
+                ),
+                child: SfSlider.vertical(
+                  min: LocoDirections.reverse,
+                  max: LocoDirections.forward,
+                  value: _direction,
+                  interval: 1,
+                  stepSize: 1,
+                  showDividers: true,
+                  onChanged:
+                      _power != StationPower.off ? _onDirectionChanged : null,
+                  thumbIcon: Center(
+                    child: Text(
+                      ['R', 'N', 'F'][_direction + 1],
+                      style: TextStyle(
                         color: Colors.white,
-                        size: 18.0,
+                        fontSize: 18.0,
                       ),
-                      trackShape: _SfTrackShape(),
                     ),
                   ),
+                  trackShape: _SfTrackShape(),
                 ),
-                generateFunctionButtons(2, 5, 10, true),
-              ],
-            ),
+              ),
+              Padding(padding: EdgeInsets.only(left: 5, right: 5)),
+              generateFunctionButtons(2, 5, 10, true),
+            ],
           ),
         ),
       ],
