@@ -36,7 +36,7 @@ class _AnimatedToggleState extends State<AnimatedToggle> {
       width: width * 0.7 * length,
       height: width * 0.13,
       child: Stack(
-        children: <Widget>[
+        children: [
           Container(
             width: width * 0.7 * length,
             height: width * 0.13,
@@ -58,7 +58,9 @@ class _AnimatedToggleState extends State<AnimatedToggle> {
                       widget.onToggleCallback(i);
                       setState(() {});
                     },
-                    child: Padding(
+                    child: Container(
+                      height: width * 0.13,
+                      alignment: Alignment.center,
                       padding: EdgeInsets.symmetric(horizontal: width * 0.1),
                       child: Text(
                         widget.values[i],

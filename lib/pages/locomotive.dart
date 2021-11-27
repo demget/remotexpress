@@ -107,18 +107,16 @@ class _LocomotivePageState extends State<LocomotivePage> {
           rows,
           (i) => Padding(
             padding: EdgeInsets.only(
-              left: 5,
-              right: 5,
-              top: reversed ? 15 : i * 40,
-              bottom: reversed ? i * 40 : 15,
+              top: reversed ? 25 : i * 50,
+              bottom: reversed ? i * 50 : 25,
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
                 columns,
                 (j) {
-                  int n = i + j * rows + offset + 1;
-                  return Padding(
+                  int n = (reversed ? 1 - i : i) + j * rows + offset + 1;
+                  return Container(
                     padding: EdgeInsets.only(top: 5, bottom: 5),
                     child: OutlinedButton(
                       onPressed: () {},
@@ -146,26 +144,10 @@ class _LocomotivePageState extends State<LocomotivePage> {
     return Stack(
       children: [
         Container(
-          height: MediaQuery.of(context).size.height / 2 + 20,
+          height: MediaQuery.of(context).size.height / 2,
           child: Stack(
             alignment: Alignment.topCenter,
             children: [
-              Padding(
-                padding: EdgeInsets.only(top: 20),
-                child: AnimatedToggle(
-                  onToggleCallback: _onPowerChanged,
-                  index: _power,
-                  values: ['IDLE', 'STOP', 'OFF'],
-                  width: 250,
-                  backgroundColor: Theme.of(context).backgroundColor,
-                  buttonColor: [
-                    Color.fromARGB(0xff, 77, 172, 100),
-                    Color.fromARGB(0xff, 234, 192, 49),
-                    Color(0xffA81B24),
-                  ][_power],
-                  textColor: Colors.white,
-                ),
-              ),
               Padding(
                 padding: EdgeInsets.only(
                   top: 50,
@@ -300,12 +282,31 @@ class _LocomotivePageState extends State<LocomotivePage> {
                   ],
                 ),
               ),
+              Padding(
+                padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).padding.top + 25,
+                ),
+                child: AnimatedToggle(
+                  onToggleCallback: _onPowerChanged,
+                  index: _power,
+                  values: ['IDLE', 'STOP', 'OFF'],
+                  width: 250,
+                  backgroundColor: Theme.of(context).backgroundColor,
+                  buttonColor: [
+                    Color.fromARGB(0xff, 77, 172, 100),
+                    Color.fromARGB(0xff, 234, 192, 49),
+                    Color(0xffA81B24),
+                  ][_power],
+                  textColor: Colors.white,
+                ),
+              ),
             ],
           ),
         ),
         Container(
           padding: EdgeInsets.only(
-            top: MediaQuery.of(context).size.height / 2 + 10,
+            top: MediaQuery.of(context).size.height / 2 - 10,
+            // bottom: MediaQuery.of(context).padding.bottom,
           ),
           child: Align(
             alignment: Alignment.center,

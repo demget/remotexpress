@@ -84,6 +84,9 @@ class _HomePageState extends State<HomePage> {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+    ));
 
     return Scaffold(
       extendBody: true,
