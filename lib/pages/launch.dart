@@ -6,7 +6,7 @@ import 'package:remotexpress/l10n.dart';
 import 'package:remotexpress/widgets/custom_dialog.dart';
 
 class LaunchPage extends StatefulWidget {
-  Function? onLaunched;
+  final Function? onLaunched;
 
   LaunchPage({
     Key? key,

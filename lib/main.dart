@@ -1,20 +1,21 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:window_size/window_size.dart' as window;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:remotexpress/l10n.dart';
+
 import 'package:remotexpress/pages/accessories.dart';
 import 'package:remotexpress/pages/debug.dart';
 import 'package:remotexpress/pages/launch.dart';
-import 'package:remotexpress/pages/locomotive.dart';
-import 'package:window_size/window_size.dart' as window;
+import 'package:remotexpress/pages/locomotive/locomotive.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-    const size = Size(402, 697);
+    const size = Size(405, 700);
     window.setWindowMinSize(size);
   }
 
@@ -41,9 +42,7 @@ class App extends StatelessWidget {
         backgroundColor: backgroundColor,
         primaryColor: primaryColor,
         primaryColorDark: primaryColorDark,
-        colorScheme: ColorScheme.light(
-          primary: primaryColor,
-        ),
+        colorScheme: ColorScheme.light(primary: primaryColor),
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
           backgroundColor: backgroundColor,
           selectedItemColor: primaryColor,
@@ -57,44 +56,45 @@ class App extends StatelessWidget {
 }
 
 class HomePage extends StatefulWidget {
-  HomePage({Key? key, required this.title}) : super(key: key);
-
   final String title;
+
+  HomePage({Key? key, required this.title}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  bool _connected = false;
-  late Widget _bodyWidget;
+  bool connected = true;
+  late Widget bodyWidget;
 
-  List<Widget> _pages = <Widget>[];
-  int _selectedPage = 0;
+  List<Widget> pages = <Widget>[];
+  int selectedPage = 0;
 
   void _onNavigationItem(int index) {
     setState(() {
-      _selectedPage = index;
+      selectedPage = index;
     });
   }
 
   @override
   void initState() {
-    _bodyWidget = LaunchPage(
+    bodyWidget = LaunchPage(
       onLaunched: () {
         setState(() {
-          _connected = true;
-          _bodyWidget = Padding(
-            padding: EdgeInsets.only(left: 5, right: 5, bottom: 50),
-            child: IndexedStack(index: _selectedPage, children: _pages),
+          connected = true;
+          bodyWidget = Padding(
+            padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
+            child: IndexedStack(index: selectedPage, children: pages),
           );
         });
       },
     );
 
-    _pages.add(LocomotivePage());
-    _pages.add(AccessoriesPage());
-    _pages.add(DebugPage());
+    pages.add(LocomotivePage());
+    pages.add(AccessoriesPage());
+    pages.add(DebugPage());
+
     super.initState();
   }
 
@@ -120,12 +120,14 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         ),
-        child: AnimatedSwitcher(
-          duration: const Duration(seconds: 1),
-          child: _bodyWidget,
+        child: SafeArea(
+          child: AnimatedSwitcher(
+            duration: const Duration(seconds: 1),
+            child: bodyWidget,
+          ),
         ),
       ),
-      bottomNavigationBar: _connected
+      bottomNavigationBar: connected
           ? ClipRRect(
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(30.0),
@@ -133,7 +135,7 @@ class _HomePageState extends State<HomePage> {
               ),
               child: BottomNavigationBar(
                 elevation: 5,
-                currentIndex: _selectedPage,
+                currentIndex: selectedPage,
                 onTap: _onNavigationItem,
                 items: const [
                   BottomNavigationBarItem(
