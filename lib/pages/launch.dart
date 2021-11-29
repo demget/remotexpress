@@ -1,97 +1,95 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 
 import 'package:remotexpress/l10n.dart';
+import 'package:remotexpress/net/station.dart';
 import 'package:remotexpress/widgets/custom_dialog.dart';
 
 class LaunchPage extends StatefulWidget {
-  final Function? onLaunched;
+  final void Function(Station)? onLaunched;
 
-  LaunchPage({
-    Key? key,
-    this.onLaunched,
-  }) : super(key: key);
+  LaunchPage({this.onLaunched});
 
   @override
   _LaunchPageState createState() => _LaunchPageState();
 }
 
 class _LaunchPageState extends State<LaunchPage> with TickerProviderStateMixin {
-  late AnimationController _iconAnimation;
-  _LaunchStatus _status = _LaunchStatus();
+  late AnimationController iconAnimation;
+  _LaunchStatus status = _LaunchStatus();
 
-  Future<bool> launch() async {
+  Future<Station?> launch() async {
+    // 1. Checking WiFi
+    setState(() => this.status.next());
+
     final network = NetworkInfo();
     final wifiName = await network.getWifiName();
 
-    if (wifiName != 'dccremote') {
-      showGeneralDialog(
-        context: context,
-        barrierDismissible: false,
-        barrierColor: Colors.black54,
-        transitionDuration: Duration(milliseconds: 400),
-        transitionBuilder: (context, a1, a2, child) {
-          return ScaleTransition(
-            scale: CurvedAnimation(
-              parent: a1,
-              curve: Curves.elasticOut,
-              reverseCurve: Curves.easeOutCubic,
-            ),
-            child: CustomDialog(
-              icon: Icon(Icons.error, size: 35, color: Colors.white),
-              title: L10n.of(context)!.errorBadWiFiTitle,
-              content: L10n.of(context)!.errorBadWiFiContent,
-              positiveText: L10n.of(context)!.errorBadWiFiPositive,
-              negativeText: L10n.of(context)!.errorBadWiFiNegative,
-              onPositivePressed: () {
-                Navigator.of(context).pop();
-              },
-              onNegativePressed: () {
-                // exit(0);
-              },
-            ),
-          );
-        },
-        pageBuilder: (context, a1, a2) => SizedBox(),
+    if (wifiName != 'dccXpress') {
+      CustomDialog.show(
+        context,
+        title: L10n.of(context)!.errorBadWiFiTitle,
+        content: L10n.of(context)!.errorBadWiFiContent,
+        positiveText: L10n.of(context)!.errorBadWiFiPositive,
+        onPositivePressed: retryLaunch,
       );
-      return false;
+      return null;
     }
 
-    return false;
+    // 2. Connecting to the socket
+    setState(() => this.status.next());
+
+    try {
+      return await Station.connect();
+    } catch (e) {
+      CustomDialog.show(
+        context,
+        title: L10n.of(context)!.errorBadConnectionTitle,
+        content: L10n.of(context)!.errorBadConnectionContent,
+        positiveText: L10n.of(context)!.errorBadConnectionPositive,
+        onPositivePressed: retryLaunch,
+      );
+
+      print(e);
+      return null;
+    }
+  }
+
+  Future tryLaunch() async {
+    final station = await launch();
+    if (station != null) widget.onLaunched?.call(station);
+  }
+
+  Future retryLaunch() async {
+    Navigator.of(context).pop();
+    status.reset();
+    await tryLaunch();
   }
 
   @override
   void initState() {
-    super.initState();
-
-    _iconAnimation = AnimationController(
+    iconAnimation = AnimationController(
       vsync: this,
       duration: Duration(seconds: 2),
       lowerBound: 10.0,
       upperBound: 80.0,
     )..forward();
 
-    _iconAnimation.addStatusListener((status) async {
+    iconAnimation.addStatusListener((status) async {
       if (status == AnimationStatus.completed) {
-        setState(() => _status.next());
-        // await Future.delayed(Duration(seconds: 1));
-        setState(() => _status.next());
-        // await Future.delayed(Duration(seconds: 1));
-        setState(() => _status.next());
-        // await Future.delayed(Duration(seconds: 1));
-
-        if (widget.onLaunched != null) {
-          widget.onLaunched!();
-        }
-        // await launch();
+        await tryLaunch();
       }
     });
+
+    super.initState();
   }
 
   @override
   void dispose() {
-    _iconAnimation.dispose();
+    iconAnimation.dispose();
     super.dispose();
   }
 
@@ -101,7 +99,7 @@ class _LaunchPageState extends State<LaunchPage> with TickerProviderStateMixin {
       fit: StackFit.expand,
       children: [
         AnimatedBuilder(
-          animation: _iconAnimation,
+          animation: iconAnimation,
           builder: (context, child) {
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -114,7 +112,7 @@ class _LaunchPageState extends State<LaunchPage> with TickerProviderStateMixin {
                   ),
                   child: Icon(
                     Icons.train,
-                    size: _iconAnimation.value,
+                    size: iconAnimation.value,
                     color: Theme.of(context).primaryColorDark,
                   ),
                 ),
@@ -126,7 +124,7 @@ class _LaunchPageState extends State<LaunchPage> with TickerProviderStateMixin {
                   style: GoogleFonts.lato(
                     color: Colors.grey[200],
                     fontWeight: FontWeight.bold,
-                    fontSize: _iconAnimation.value - 20,
+                    fontSize: iconAnimation.value - 20,
                   ),
                 ),
               ],
@@ -139,7 +137,7 @@ class _LaunchPageState extends State<LaunchPage> with TickerProviderStateMixin {
             CircularProgressIndicator(),
             Padding(padding: EdgeInsets.only(top: 20)),
             Text(
-              _status.text(context) + "...",
+              status.text(context) + "...",
               style: GoogleFonts.lato(
                 fontSize: 18.0,
                 color: Colors.white,
@@ -154,32 +152,36 @@ class _LaunchPageState extends State<LaunchPage> with TickerProviderStateMixin {
 }
 
 class _LaunchStatus {
-  static const _statuses = [
+  static const statuses = [
     'initializing',
     'checking',
     'connecting',
     'reading',
   ];
 
-  late String _current;
-  int _index = 0;
+  late String current;
+  int index = 0;
 
   _LaunchStatus() {
     next();
   }
 
   void next() {
-    if (_index == _statuses.length) return;
-    _current = _statuses[_index];
-    _index += 1;
+    if (index == statuses.length) return;
+    current = statuses[index];
+    index += 1;
+  }
+
+  void reset() {
+    index = 0;
   }
 
   String value() {
-    return _current;
+    return current;
   }
 
   String text(BuildContext context) {
-    switch (_current) {
+    switch (current) {
       case 'initializing':
         return L10n.of(context)!.launchStatusInitializing;
       case 'checking':

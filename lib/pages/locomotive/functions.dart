@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:remotexpress/net/loco.dart';
 
 class LocomotiveFunctions extends StatefulWidget {
   final int rows, columns;
+  final List<LocoFunction> functions;
+  final void Function(int) onToggle;
 
   LocomotiveFunctions({
     required this.rows,
     required this.columns,
+    required this.functions,
+    required this.onToggle,
   });
 
   @override
@@ -14,53 +19,51 @@ class LocomotiveFunctions extends StatefulWidget {
 
 class _LocomotiveFunctionsState extends State<LocomotiveFunctions> {
   @override
-  Widget build(BuildContext context) {
-    final style = OutlinedButton.styleFrom(
-      primary: Colors.grey[400],
-      backgroundColor: Theme.of(context).primaryColorDark,
-      side: BorderSide.none,
-      shape: StadiumBorder(),
-      elevation: 3,
-    );
+  void initState() {
+    super.initState();
+  }
 
-    return Container(
-      child: Row(
-        children: [
-          ...List.generate(
-            widget.rows,
-            (i) => Padding(
-              padding: EdgeInsets.only(
-                left: 5,
-                right: 5,
-                // top: reversed ? 25 : i * 50,
-                // bottom: reversed ? i * 50 : 25,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  widget.columns,
-                  (j) {
-                    // int n = (reversed ? 1 - i : i) + j * rows + offset;
-                    int n = i + j * widget.rows;
-                    return Container(
-                      child: Container(
-                        padding: EdgeInsets.only(top: 5, bottom: 5),
-                        child: OutlinedButton(
-                          onPressed: () {},
-                          style: style,
-                          child: n == 0
-                              ? Icon(Icons.lightbulb, size: 18)
-                              : Text('F$n'),
-                        ),
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        ...List.generate(
+          widget.rows,
+          (i) => Padding(
+            padding: EdgeInsets.only(left: 5, right: 5),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                widget.columns,
+                (j) {
+                  int f = i + j * widget.rows;
+                  final style = OutlinedButton.styleFrom(
+                    primary: widget.functions[f].on
+                        ? Theme.of(context).primaryColor
+                        : Colors.grey[400],
+                    backgroundColor: Theme.of(context).primaryColorDark,
+                    side: BorderSide.none,
+                    shape: StadiumBorder(),
+                    elevation: widget.functions[f].on ? 0.5 : 3,
+                  );
+                  return Expanded(
+                    child: Container(
+                      padding: EdgeInsets.only(top: 5, bottom: 5),
+                      child: OutlinedButton(
+                        onPressed: () => widget.onToggle(f),
+                        style: style,
+                        child: f == 0
+                            ? Icon(Icons.lightbulb, size: 18)
+                            : Text('F$f'),
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

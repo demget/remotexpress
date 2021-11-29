@@ -7,8 +7,8 @@ import 'package:countup/countup.dart';
 class LocomotiveSpeedo extends StatefulWidget {
   final List<int> speedSteps;
   final void Function(int) onSpeedStepChanged;
-  final int speedStep;
   final int speed;
+  final int speedStep;
   final int visualSpeed;
   final int previousSpeed;
 
@@ -32,6 +32,14 @@ class LocomotiveSpeedo extends StatefulWidget {
 }
 
 class _LocomotiveSpeedoState extends State<LocomotiveSpeedo> {
+  late int previousSpeedStep;
+
+  @override
+  void initState() {
+    super.initState();
+    previousSpeedStep = widget.speedStep;
+  }
+
   double speedStepIndex() {
     return widget.speedSteps.indexOf(widget.speedStep) + 1.0;
   }
@@ -42,7 +50,8 @@ class _LocomotiveSpeedoState extends State<LocomotiveSpeedo> {
 
   void onSpeedStepChanged(double index) {
     final speedStep = widget.speedSteps[index.round() - 1];
-    if (widget.speedStep == speedStep) return;
+    if (previousSpeedStep == speedStep) return;
+    previousSpeedStep = speedStep;
     widget.onSpeedStepChanged(speedStep);
   }
 

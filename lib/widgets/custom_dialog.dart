@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:remotexpress/l10n.dart';
 
 class CustomDialog extends StatelessWidget {
   final String title, content, positiveText, negativeText;
@@ -20,6 +23,42 @@ class CustomDialog extends StatelessWidget {
       color: Colors.white,
     ),
   });
+
+  static void show(
+    BuildContext context, {
+    required String title,
+    required String content,
+    String? positiveText,
+    String? negativeText,
+    GestureTapCallback? onPositivePressed,
+    GestureTapCallback? onNegativePressed,
+  }) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black54,
+      transitionDuration: Duration(milliseconds: 400),
+      transitionBuilder: (context, a1, a2, child) {
+        return ScaleTransition(
+          scale: CurvedAnimation(
+            parent: a1,
+            curve: Curves.elasticOut,
+            reverseCurve: Curves.easeOutCubic,
+          ),
+          child: CustomDialog(
+            icon: Icon(Icons.error, size: 35, color: Colors.white),
+            title: title,
+            content: content,
+            positiveText: positiveText ?? L10n.of(context)!.dialogPositive,
+            negativeText: negativeText ?? L10n.of(context)!.dialogNegative,
+            onPositivePressed: onPositivePressed,
+            onNegativePressed: () => exit(0),
+          ),
+        );
+      },
+      pageBuilder: (context, a1, a2) => SizedBox(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:remotexpress/net/station.dart';
 import 'package:window_size/window_size.dart' as window;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,7 +16,7 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-    const size = Size(420, 720);
+    const size = Size(420, 740);
     window.setWindowMinSize(size);
   }
 
@@ -65,13 +66,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool connected = true;
+  bool debug = false;
+  bool connected = false;
   late Widget bodyWidget;
 
   List<Widget> pages = <Widget>[];
   int selectedPage = 0;
 
-  void _onNavigationItem(int index) {
+  void onNavigationItem(int index) {
     setState(() {
       selectedPage = index;
     });
@@ -79,23 +81,32 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    bodyWidget = LaunchPage(
-      onLaunched: () {
-        setState(() {
-          connected = true;
-          bodyWidget = Padding(
-            padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
-            child: IndexedStack(index: selectedPage, children: pages),
-          );
-        });
-      },
-    );
+    if (!debug) {
+      bodyWidget = LaunchPage(
+        onLaunched: (station) {
+          setState(() {
+            connected = true;
+            bodyWidget = _buildBody(station);
+          });
+        },
+      );
+    } else {
+      connected = true;
+      bodyWidget = _buildBody(Station.todo());
+    }
 
-    pages.add(LocomotivePage());
+    super.initState();
+  }
+
+  Widget _buildBody(Station station) {
+    pages.add(LocomotivePage(station));
     pages.add(AccessoriesPage());
     pages.add(DebugPage());
 
-    super.initState();
+    return Padding(
+      padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
+      child: IndexedStack(index: selectedPage, children: pages),
+    );
   }
 
   @override
@@ -136,7 +147,7 @@ class _HomePageState extends State<HomePage> {
               child: BottomNavigationBar(
                 elevation: 5,
                 currentIndex: selectedPage,
-                onTap: _onNavigationItem,
+                onTap: onNavigationItem,
                 items: const [
                   BottomNavigationBarItem(
                     icon: Icon(Icons.train),

@@ -5,9 +5,15 @@
     "launchStatusChecking": "Перевірка підʼєднанного Wi-Fi",
     "launchStatusConnecting": "Зʼєднання з командною станцією",
     "launchStatusReading": "Зчитування інформації з КС",
+    
+    "dialogPositive": "ОК",
+    "dialogNegative": "Вихід",
 
     "errorBadWiFiTitle": "Виникла помилка",
     "errorBadWiFiContent": "Поточна точка доступу Wi-Fi не відповідає вимогам найпершого підключення до командної станції. Переконайтесь, що ви підʼєднанні до точки доступу dccXpress.",
     "errorBadWiFiPositive": "Повторити",
-    "errorBadWiFiNegative": "Вихід"
+
+    "errorBadConnectionTitle": "Виникла помилка",
+    "errorBadConnectionContent": "Не вдалось встановити зʼєднання із сокетом командної станції. Спробуйте ще раз.",
+    "errorBadConnectionPositive": "Повторити"
 }
