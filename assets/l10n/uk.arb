@@ -1,6 +1,10 @@
 {
     "@@locale": "uk",
 
+    "navigationLocomotive": "Локомотив",
+    "navigationAccessories": "Аксесуари",
+    "navigationCV": "CV",
+
     "launchStatusInitializing": "Ініціалізація",
     "launchStatusChecking": "Перевірка підʼєднанного Wi-Fi",
     "launchStatusConnecting": "Зʼєднання з командною станцією",
@@ -15,5 +19,8 @@
 
     "errorBadConnectionTitle": "Виникла помилка",
     "errorBadConnectionContent": "Не вдалось встановити зʼєднання із сокетом командної станції. Спробуйте ще раз.",
-    "errorBadConnectionPositive": "Повторити"
+    "errorBadConnectionPositive": "Повторити",
+
+    "addRouteTooltip": "Додати маршрут",
+    "accessoryLabel": "Аксесуар"
 }

@@ -36,7 +36,7 @@ class _LocomotiveDirectionTrackState extends State<LocomotiveDirectionTrack> {
         trackCornerRadius: 4,
         activeDividerRadius: 3,
         inactiveDividerRadius: 3,
-        thumbRadius: 15,
+        thumbRadius: 16,
         activeLabelStyle: labelStyle,
         inactiveLabelStyle: labelStyle,
         disabledThumbColor: Theme.of(context).backgroundColor,

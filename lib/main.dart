@@ -1,13 +1,13 @@
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:remotexpress/net/station.dart';
+import 'package:clippy_flutter/arc.dart';
 import 'package:window_size/window_size.dart' as window;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:remotexpress/l10n.dart';
 
-import 'package:remotexpress/pages/accessories.dart';
+import 'package:remotexpress/pages/accessories/accessories.dart';
 import 'package:remotexpress/pages/debug.dart';
 import 'package:remotexpress/pages/launch.dart';
 import 'package:remotexpress/pages/locomotive/locomotive.dart';
@@ -49,6 +49,14 @@ class App extends StatelessWidget {
           selectedItemColor: primaryColor,
           unselectedItemColor: Colors.white54,
         ),
+        floatingActionButtonTheme: FloatingActionButtonThemeData(
+          elevation: 2,
+          focusElevation: 2,
+          hoverElevation: 2,
+          foregroundColor: primaryColor,
+          backgroundColor: backgroundColor,
+          splashColor: Colors.transparent,
+        ),
       ),
       debugShowCheckedModeBanner: false,
       home: HomePage(title: title),
@@ -66,47 +74,17 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool debug = false;
+  bool debug = true;
   bool connected = false;
   late Widget bodyWidget;
 
-  List<Widget> pages = <Widget>[];
+  List<Widget> pages = [];
   int selectedPage = 0;
 
   void onNavigationItem(int index) {
     setState(() {
       selectedPage = index;
     });
-  }
-
-  @override
-  void initState() {
-    if (!debug) {
-      bodyWidget = LaunchPage(
-        onLaunched: (station) {
-          setState(() {
-            connected = true;
-            bodyWidget = _buildBody(station);
-          });
-        },
-      );
-    } else {
-      connected = true;
-      bodyWidget = _buildBody(Station.todo());
-    }
-
-    super.initState();
-  }
-
-  Widget _buildBody(Station station) {
-    pages.add(LocomotivePage(station));
-    pages.add(AccessoriesPage());
-    pages.add(DebugPage());
-
-    return Padding(
-      padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
-      child: IndexedStack(index: selectedPage, children: pages),
-    );
   }
 
   @override
@@ -134,7 +112,23 @@ class _HomePageState extends State<HomePage> {
         child: SafeArea(
           child: AnimatedSwitcher(
             duration: const Duration(seconds: 1),
-            child: bodyWidget,
+            child: !connected
+                ? LaunchPage(
+                    debug: debug,
+                    onLaunched: (station) {
+                      pages.add(LocomotivePage(station));
+                      pages.add(AccessoriesPage(station));
+                      pages.add(DebugPage());
+                      setState(() => connected = true);
+                    },
+                  )
+                : Container(
+                    padding: EdgeInsets.all(10),
+                    child: IndexedStack(
+                      index: selectedPage,
+                      children: pages,
+                    ),
+                  ),
           ),
         ),
       ),
@@ -148,24 +142,34 @@ class _HomePageState extends State<HomePage> {
                 elevation: 5,
                 currentIndex: selectedPage,
                 onTap: onNavigationItem,
-                items: const [
+                items: [
                   BottomNavigationBarItem(
                     icon: Icon(Icons.train),
-                    label: 'Locomotive',
+                    label: L10n.of(context)!.navigationLocomotive,
                     tooltip: '',
                   ),
                   BottomNavigationBarItem(
-                    icon: Icon(Icons.alt_route),
-                    label: 'Accessories',
+                    icon: selectedPage != 1
+                        ? Icon(Icons.alt_route)
+                        : Container(width: 20, height: 20),
+                    label: L10n.of(context)!.navigationAccessories,
                     tooltip: '',
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.amp_stories),
-                    label: 'CV',
+                    label: L10n.of(context)!.navigationCV,
                     tooltip: '',
                   ),
                 ],
               ),
+            )
+          : null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: selectedPage == 1
+          ? FloatingActionButton(
+              child: Icon(Icons.alt_route),
+              tooltip: L10n.of(context)!.addRouteTooltip,
+              onPressed: () {},
             )
           : null,
     );

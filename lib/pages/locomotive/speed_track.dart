@@ -73,7 +73,6 @@ class _LocomotiveSpeedTrackState extends State<LocomotiveSpeedTrack> {
             color: Colors.white,
             size: 26,
           ),
-          // thumbShape:
         ),
       ),
     );

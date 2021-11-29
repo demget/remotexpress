@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:network_info_plus/network_info_plus.dart';
@@ -9,9 +7,10 @@ import 'package:remotexpress/net/station.dart';
 import 'package:remotexpress/widgets/custom_dialog.dart';
 
 class LaunchPage extends StatefulWidget {
+  final bool debug;
   final void Function(Station)? onLaunched;
 
-  LaunchPage({this.onLaunched});
+  LaunchPage({this.debug = false, this.onLaunched});
 
   @override
   _LaunchPageState createState() => _LaunchPageState();
@@ -59,8 +58,16 @@ class _LaunchPageState extends State<LaunchPage> with TickerProviderStateMixin {
   }
 
   Future tryLaunch() async {
+    if (widget.debug) {
+      widget.onLaunched?.call(Station.todo());
+      return;
+    }
+
     final station = await launch();
-    if (station != null) widget.onLaunched?.call(station);
+    if (station != null) {
+      station.resume();
+      widget.onLaunched?.call(station);
+    }
   }
 
   Future retryLaunch() async {

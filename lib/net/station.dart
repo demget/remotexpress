@@ -48,7 +48,7 @@ class Station {
 
   void off() {
     send(XorCommand([0x21, 0x81, 0xA0]));
-    send(XorCommand([0x21, 0x80, 0xA1]));
+    send2(XorCommand([0x21, 0x80, 0xA1]));
   }
 
   void power(int power) {

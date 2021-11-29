@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:remotexpress/net/loco.dart';
+import 'package:remotexpress/widgets/toggle_button.dart';
 
 class LocomotiveFunctions extends StatefulWidget {
-  final int rows, columns;
+  final int columns, rows, offset;
   final List<LocoFunction> functions;
   final void Function(int) onToggle;
+  final Widget Function(int) childBuilder;
 
   LocomotiveFunctions({
-    required this.rows,
     required this.columns,
+    required this.rows,
+    this.offset = 0,
     required this.functions,
     required this.onToggle,
+    required this.childBuilder,
   });
 
   @override
@@ -19,51 +23,34 @@ class LocomotiveFunctions extends StatefulWidget {
 
 class _LocomotiveFunctionsState extends State<LocomotiveFunctions> {
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Row(
-      children: [
-        ...List.generate(
-          widget.rows,
-          (i) => Padding(
-            padding: EdgeInsets.only(left: 5, right: 5),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                widget.columns,
-                (j) {
-                  int f = i + j * widget.rows;
-                  final style = OutlinedButton.styleFrom(
-                    primary: widget.functions[f].on
-                        ? Theme.of(context).primaryColor
-                        : Colors.grey[400],
-                    backgroundColor: Theme.of(context).primaryColorDark,
-                    side: BorderSide.none,
-                    shape: StadiumBorder(),
-                    elevation: widget.functions[f].on ? 0.5 : 3,
-                  );
-                  return Expanded(
-                    child: Container(
-                      padding: EdgeInsets.only(top: 5, bottom: 5),
-                      child: OutlinedButton(
-                        onPressed: () => widget.onToggle(f),
-                        style: style,
-                        child: f == 0
-                            ? Icon(Icons.lightbulb, size: 18)
-                            : Text('F$f'),
-                      ),
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(
+        widget.columns,
+        (i) => Padding(
+          padding: EdgeInsets.only(left: 5, right: 5),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+              widget.rows,
+              (j) {
+                int f = i + j * widget.columns + widget.offset;
+                return Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 5, bottom: 5),
+                    child: ToggleButton(
+                      on: widget.functions[f].on,
+                      onPressed: () => widget.onToggle(f),
+                      child: widget.childBuilder(f),
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
           ),
         ),
-      ],
+      ),
     );
   }
 }

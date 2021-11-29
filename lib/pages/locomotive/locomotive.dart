@@ -112,12 +112,12 @@ class _LocomotivePageState extends State<LocomotivePage> {
             previousSpeed: previousSpeed,
           ),
         ),
-        SizedBox(height: 25),
+        SizedBox(height: 30),
         LocomotivePower(
           power: power,
           onPowerChanged: onPowerChanged,
         ),
-        SizedBox(height: 25),
+        SizedBox(height: 40),
         Expanded(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -139,18 +139,30 @@ class _LocomotivePageState extends State<LocomotivePage> {
                     ),
                   ),
                   Padding(padding: EdgeInsets.only(bottom: 10)),
+                  // Flexible(
+                  //   flex: 1,
+                  //   child: LocomotiveFunctions(
+                  //     columns: 1,
+                  //     rows: 1,
+                  //     functions: loco.functions,
+                  //     onToggle: onFunctionToggle,
+                  //     childBuilder: (_) => Icon(Icons.lightbulb),
+                  //   ),
+                  // ),
                   Flexible(
                     flex: 4,
                     child: LocomotiveFunctions(
-                      rows: 3,
-                      columns: 5,
+                      columns: 3,
+                      rows: 4,
+                      offset: 1,
                       functions: loco.functions,
                       onToggle: onFunctionToggle,
+                      childBuilder: (f) => Text('F$f'),
                     ),
                   ),
                 ],
               ),
-              SizedBox(width: 50),
+              SizedBox(width: 30),
               Row(
                 children: [
                   LocomotiveDirectionTrack(

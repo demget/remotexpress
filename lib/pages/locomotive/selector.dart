@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:numberpicker/numberpicker.dart';
 
 class LocomotiveSelector extends StatefulWidget {
@@ -23,11 +24,10 @@ class _LocomotiveSelectorState extends State<LocomotiveSelector> {
       maxValue: 256,
       initialValue: widget.loco,
       onChanged: (v) => widget.onChanged(v.toInt()),
-      // haptics: true,
       textStyle: GoogleFonts.lato(color: Colors.grey),
       selectedTextStyle: GoogleFonts.lato(
         color: Theme.of(context).primaryColor,
-        fontSize: 22,
+        fontSize: 20,
       ),
     );
   }
