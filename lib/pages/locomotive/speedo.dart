@@ -88,7 +88,7 @@ class _LocomotiveSpeedoState extends State<LocomotiveSpeedo> {
               markerType: MarkerType.circle,
               markerWidth: 12,
               markerHeight: 12,
-              color: Colors.grey[100],
+              color: Colors.grey[200],
               offsetUnit: GaugeSizeUnit.factor,
               overlayRadius: 12,
             ),
@@ -97,7 +97,7 @@ class _LocomotiveSpeedoState extends State<LocomotiveSpeedo> {
             thickness: 0.06,
             thicknessUnit: GaugeSizeUnit.factor,
             cornerStyle: CornerStyle.bothCurve,
-            color: Colors.grey[100],
+            color: Colors.grey[250],
           ),
           axisLabelStyle: GaugeTextStyle(
             color: Colors.grey,
@@ -129,9 +129,6 @@ class _LocomotiveSpeedoState extends State<LocomotiveSpeedo> {
           pointers: [
             RangePointer(
               value: widget.visualSpeed.toDouble(),
-              // widget.visualSpeed > 0
-              // ? widget.visualSpeed.toDouble() + 0.11
-              // : 0,
               enableAnimation: true,
               animationType: AnimationType.ease,
               animationDuration: 500,

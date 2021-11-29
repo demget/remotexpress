@@ -30,7 +30,7 @@ class _LocomotiveSpeedTrackState extends State<LocomotiveSpeedTrack> {
   );
 
   String formatLabel(dynamic value, String s) {
-    int speed = widget.speed, interval = widget.interval;
+    int speed = widget.speed, interval = widget.interval - 1;
     bool inRange = speed > value - interval && speed < value + interval;
     return value == 0 || inRange ? '' : s;
   }
@@ -45,9 +45,9 @@ class _LocomotiveSpeedTrackState extends State<LocomotiveSpeedTrack> {
       onPointerUp: (_) => widget.onPointerUp(),
       child: SfSliderTheme(
         data: SfSliderThemeData(
-          thumbRadius: 22,
-          trackCornerRadius: 16,
-          activeTrackHeight: 16,
+          thumbRadius: 16,
+          trackCornerRadius: 14,
+          activeTrackHeight: 14,
           inactiveTrackHeight: 14,
           labelOffset: Offset(6, 0),
           activeLabelStyle: labelStyle.copyWith(color: activeColor),
@@ -64,6 +64,7 @@ class _LocomotiveSpeedTrackState extends State<LocomotiveSpeedTrack> {
           interval: widget.interval.toDouble(),
           showLabels: true,
           showTicks: false,
+          labelFormatterCallback: formatLabel,
           onChanged: widget.onChanged != null
               ? (v) => widget.onChanged!(v.toInt())
               : null,
@@ -72,7 +73,7 @@ class _LocomotiveSpeedTrackState extends State<LocomotiveSpeedTrack> {
             color: Colors.white,
             size: 26,
           ),
-          labelFormatterCallback: formatLabel,
+          // thumbShape:
         ),
       ),
     );

@@ -115,9 +115,15 @@ class _LocomotivePageState extends State<LocomotivePage> {
                 children: [
                   Flexible(
                     flex: 1,
-                    child: LocomotiveSelector(
-                      loco: loco,
-                      onChanged: onLocoChanged,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).backgroundColor,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: LocomotiveSelector(
+                        loco: loco,
+                        onChanged: onLocoChanged,
+                      ),
                     ),
                   ),
                   Flexible(

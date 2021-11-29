@@ -15,7 +15,7 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-    const size = Size(405, 700);
+    const size = Size(420, 720);
     window.setWindowMinSize(size);
   }
 
@@ -115,8 +115,8 @@ class _HomePageState extends State<HomePage> {
             begin: Alignment.bottomLeft,
             end: Alignment.topRight,
             colors: [
-              Color(0xff222239),
-              Color(0xff292845),
+              Color(0xff202139),
+              Color(0xff313045),
             ],
           ),
         ),

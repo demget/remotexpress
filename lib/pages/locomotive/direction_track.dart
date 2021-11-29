@@ -27,16 +27,21 @@ class _LocomotiveDirectionTrackState extends State<LocomotiveDirectionTrack> {
 
   @override
   Widget build(BuildContext context) {
+    final Color dividerColor = Theme.of(context).primaryColor;
+
     return SfSliderTheme(
       data: SfSliderThemeData(
         activeTrackHeight: 8,
         inactiveTrackHeight: 8,
         trackCornerRadius: 4,
+        activeDividerRadius: 3,
+        inactiveDividerRadius: 3,
         thumbRadius: 15,
         activeLabelStyle: labelStyle,
         inactiveLabelStyle: labelStyle,
         disabledThumbColor: Theme.of(context).backgroundColor,
-        activeDividerColor: Theme.of(context).primaryColor,
+        activeDividerColor: dividerColor,
+        inactiveDividerColor: dividerColor,
       ),
       child: SfSlider.vertical(
         min: LocoDirections.reverse,
