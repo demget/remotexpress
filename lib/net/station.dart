@@ -13,10 +13,13 @@ class Station {
   static const defaultIp = '192.168.4.1';
   static const defaultPort = 333;
 
+  bool _debug = false;
   late Socket _socket;
 
-  Station.todo();
   Station(this._socket);
+  Station.todo() {
+    _debug = true;
+  }
 
   static Future<Station> connect() async {
     // ignore: close_sinks
@@ -25,10 +28,12 @@ class Station {
   }
 
   void send(Command command) {
+    if (_debug) return;
     _socket.add(command.bytes());
   }
 
   void send2(Command command) {
+    if (_debug) return;
     final bytes = command.bytes();
     _socket.add(bytes);
     _socket.add(bytes);

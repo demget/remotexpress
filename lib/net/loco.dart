@@ -6,9 +6,9 @@ class LocoDirections {
 
 class LocoFunction {
   final int f;
-  bool on = false;
+  bool on;
 
-  LocoFunction(this.f);
+  LocoFunction(this.f, [this.on = false]);
 
   void toggle() {
     on = !on;

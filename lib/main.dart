@@ -123,7 +123,7 @@ class _HomePageState extends State<HomePage> {
                     },
                   )
                 : Container(
-                    padding: EdgeInsets.all(10),
+                    padding: EdgeInsets.only(bottom: 10),
                     child: IndexedStack(
                       index: selectedPage,
                       children: pages,
@@ -150,7 +150,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   BottomNavigationBarItem(
                     icon: selectedPage != 1
-                        ? Icon(Icons.alt_route)
+                        ? Icon(Icons.memory)
                         : Container(width: 20, height: 20),
                     label: L10n.of(context)!.navigationAccessories,
                     tooltip: '',

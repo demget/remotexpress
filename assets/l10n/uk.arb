@@ -22,5 +22,7 @@
     "errorBadConnectionPositive": "Повторити",
 
     "addRouteTooltip": "Додати маршрут",
-    "accessoryLabel": "Аксесуар"
+    "accessoryLabel": "Адрес",
+    "addToGroupTooltip": "Додати до групи",
+    "renameGroupTooltip": "Перейменувати групу"
 }

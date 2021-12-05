@@ -101,8 +101,8 @@ class _LocomotivePageState extends State<LocomotivePage> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Container(
-          height: 300,
+        Expanded(
+          flex: 1,
           child: LocomotiveSpeedo(
             speedSteps: Loco.speedSteps,
             onSpeedStepChanged: onSpeedStepChanged,
@@ -153,8 +153,8 @@ class _LocomotivePageState extends State<LocomotivePage> {
                     flex: 4,
                     child: LocomotiveFunctions(
                       columns: 3,
-                      rows: 4,
-                      offset: 1,
+                      rows: 5,
+                      // offset: 1,
                       functions: loco.functions,
                       onToggle: onFunctionToggle,
                       childBuilder: (f) => Text('F$f'),

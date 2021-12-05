@@ -5,7 +5,7 @@ import 'package:remotexpress/widgets/toggle_button.dart';
 class LocomotiveFunctions extends StatefulWidget {
   final int columns, rows, offset;
   final List<LocoFunction> functions;
-  final void Function(int) onToggle;
+  final void Function(int)? onToggle;
   final Widget Function(int) childBuilder;
 
   LocomotiveFunctions({
@@ -13,8 +13,8 @@ class LocomotiveFunctions extends StatefulWidget {
     required this.rows,
     this.offset = 0,
     required this.functions,
-    required this.onToggle,
     required this.childBuilder,
+    this.onToggle,
   });
 
   @override
@@ -41,7 +41,9 @@ class _LocomotiveFunctionsState extends State<LocomotiveFunctions> {
                     padding: EdgeInsets.only(top: 5, bottom: 5),
                     child: ToggleButton(
                       on: widget.functions[f].on,
-                      onPressed: () => widget.onToggle(f),
+                      onPressed: widget.onToggle != null
+                          ? () => widget.onToggle!(f)
+                          : null,
                       child: widget.childBuilder(f),
                     ),
                   ),
