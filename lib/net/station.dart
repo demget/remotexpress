@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:remotexpress/net/accessory.dart';
 import 'package:remotexpress/net/command.dart';
 import 'package:remotexpress/net/loco.dart';
 
@@ -70,6 +71,20 @@ class Station {
     }
   }
 
+  void configure(int cv, int data) {
+    // XpressNet 3.6
+    if (cv == 1024) cv = 0;
+
+    send(XorCommand([0x23, 0x1C + (cv ~/ 256), cv, data]));
+    resume();
+
+    // XpressNet 3.0
+    if (cv >= 256) cv = 0;
+
+    send(XorCommand([0x23, 0x16, cv, data]));
+    resume();
+  }
+
   void updateLoco(Loco loco, [bool functions = false]) {
     send(XorCommand([
       0xE4,
@@ -88,6 +103,14 @@ class Station {
       0, // always zero
       loco.address,
       loco.functionsByte(group),
+    ]));
+  }
+
+  void updateAccessory(Accessory accessory) {
+    send(XorCommand([
+      0x52,
+      (accessory.a - 1) ~/ 4,
+      accessory.byte(),
     ]));
   }
 }
