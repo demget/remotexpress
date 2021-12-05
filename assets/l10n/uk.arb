@@ -24,5 +24,9 @@
     "addRouteTooltip": "Додати маршрут",
     "accessoryLabel": "Адрес",
     "addToGroupTooltip": "Додати до групи",
-    "renameGroupTooltip": "Перейменувати групу"
+    "renameGroupTooltip": "Перейменувати групу",
+
+    "accessoryGroupTurnouts": "Стрілки",
+    "accessoryGroupLight": "Світло",
+    "accessoryGroupSound": "Звук"
 }
