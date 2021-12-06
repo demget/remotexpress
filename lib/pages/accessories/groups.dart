@@ -2,10 +2,17 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:remotexpress/l10n.dart';
+import 'package:remotexpress/models/group.dart';
 import 'package:remotexpress/pages/accessories/buttons.dart';
 
 class AccessoryGroups extends StatefulWidget {
-  AccessoryGroups();
+  final List<Group> groups;
+  final void Function(int)? onToggle;
+
+  AccessoryGroups({
+    required this.groups,
+    required this.onToggle,
+  });
 
   @override
   _AccessoryGroupsState createState() => _AccessoryGroupsState();
@@ -13,17 +20,6 @@ class AccessoryGroups extends StatefulWidget {
 
 class _AccessoryGroupsState extends State<AccessoryGroups> {
   Widget buildItem(BuildContext context, int i) {
-    final title = [
-      L10n.of(context)!.accessoryGroupTurnouts,
-      L10n.of(context)!.accessoryGroupLight,
-      L10n.of(context)!.accessoryGroupSound,
-    ][i];
-    final icon = [
-      Icons.compare_arrows,
-      Icons.lightbulb,
-      Icons.volume_up,
-    ][i];
-
     return Container(
       margin: EdgeInsets.all(10),
       child: Stack(
@@ -56,7 +52,7 @@ class _AccessoryGroupsState extends State<AccessoryGroups> {
                   Padding(
                     padding: EdgeInsets.only(left: 40),
                     child: Text(
-                      title,
+                      widget.groups[i].name,
                       style: GoogleFonts.lato(
                         color: Colors.white,
                         fontSize: 18,
@@ -66,22 +62,26 @@ class _AccessoryGroupsState extends State<AccessoryGroups> {
                   Container(height: 10),
                   Container(
                     height: 40,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      padding: EdgeInsets.symmetric(horizontal: 30),
-                      child: AccessoryButtons(),
-                      // LocomotiveFunctions(
-                      //   columns: 6,
-                      //   rows: 1,
-                      //   // offset: index + 1,
-                      //   functions: List.generate(
-                      //     12,
-                      //     (i) => LocoFunction(i),
-                      //   ),
-                      //   onToggle: (_) {},
-                      //   childBuilder: (f) => Text('A${f + 1}'),
-                      // ),
-                    ),
+                    child: widget.groups[i].accessories.length != 0
+                        ? SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            padding: EdgeInsets.symmetric(horizontal: 30),
+                            child: AccessoryButtons(
+                              accessories: widget.groups[i].accessories,
+                              childBuilder: (a) => Text('A$a'),
+                              onToggle: widget.onToggle,
+                            ),
+                          )
+                        : Padding(
+                            padding: EdgeInsets.only(left: 40),
+                            child: Text(
+                              L10n.of(context)!.accessoriesEmpty,
+                              style: TextStyle(
+                                color: Colors.grey[300],
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ),
                   ),
                 ],
               ),
@@ -94,7 +94,7 @@ class _AccessoryGroupsState extends State<AccessoryGroups> {
               radius: 40,
               backgroundColor: Theme.of(context).primaryColor,
               child: IconButton(
-                icon: Icon(icon),
+                icon: Icon(widget.groups[i].icon),
                 iconSize: 40,
                 color: Colors.white,
                 onPressed: () {},
@@ -109,7 +109,7 @@ class _AccessoryGroupsState extends State<AccessoryGroups> {
   @override
   Widget build(BuildContext context) {
     return Swiper(
-      itemCount: 3,
+      itemCount: widget.groups.length,
       scale: 0.9,
       viewportFraction: 0.95,
       itemBuilder: buildItem,

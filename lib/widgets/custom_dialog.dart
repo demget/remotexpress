@@ -43,7 +43,8 @@ class CustomDialog extends StatefulWidget {
   }) =>
       showGeneralDialog(
         context: context,
-        barrierDismissible: false,
+        barrierDismissible: true,
+        barrierLabel: '',
         barrierColor: Colors.black54,
         transitionDuration: Duration(milliseconds: 400),
         transitionBuilder: (context, a1, a2, _) {

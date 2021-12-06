@@ -107,7 +107,7 @@ class Station {
   }
 
   void updateAccessory(Accessory accessory) {
-    send(XorCommand([
+    send2(XorCommand([
       0x52,
       (accessory.a - 1) ~/ 4,
       accessory.byte(),

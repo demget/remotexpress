@@ -6,8 +6,12 @@ import 'package:remotexpress/pages/accessories/buttons.dart';
 
 class AccessoryRoutes extends StatefulWidget {
   final List<Route> routes;
+  final void Function(Route route) onPlay;
 
-  AccessoryRoutes({required this.routes});
+  AccessoryRoutes({
+    required this.routes,
+    required this.onPlay,
+  });
 
   @override
   _AccessoryRoutesState createState() => _AccessoryRoutesState();
@@ -18,9 +22,10 @@ class _AccessoryRoutesState extends State<AccessoryRoutes> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Icon(
-          Icons.alt_route,
+        IconButton(
+          icon: Icon(expanded ? Icons.play_arrow : Icons.alt_route),
           color: Theme.of(context).primaryColor,
+          onPressed: () => widget.onPlay(route),
         ),
         Text(
           route.name,
@@ -69,21 +74,18 @@ class _AccessoryRoutesState extends State<AccessoryRoutes> {
                       expanded: Column(
                         children: [
                           headerRow(context, route, true),
+                          SizedBox(height: 5),
                           Container(
                             height: 40,
-                            padding: EdgeInsets.symmetric(vertical: 5),
                             child: SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
-                              child: AccessoryButtons(),
-                              // LocomotiveFunctions(
-                              //   columns: 5,
-                              //   rows: 1,
-                              //   functions: List.generate(
-                              //     5,
-                              //     (i) => LocoFunction(i, i % 2 == 0),
-                              //   ),
-                              //   childBuilder: (f) => Text('A${f + 1}'),
-                              // ),
+                              child: AbsorbPointer(
+                                child: AccessoryButtons(
+                                  accessories: route.turnouts,
+                                  childBuilder: (a) => Text('A$a'),
+                                  onToggle: null,
+                                ),
+                              ),
                             ),
                           ),
                         ],

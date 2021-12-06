@@ -28,10 +28,13 @@
 
     "addRouteTooltip": "Додати маршрут",
     "accessoryLabel": "Адрес",
+    "addToRouteTooltip": "Додати до маршруту",
     "addToGroupTooltip": "Додати до групи",
-    "renameGroupTooltip": "Перейменувати групу",
 
+    "accessoriesEmpty": "Пусто...",
     "accessoryGroupTurnouts": "Стрілки",
     "accessoryGroupLight": "Світло",
-    "accessoryGroupSound": "Звук"
+    "accessoryGroupSound": "Звук",
+    "accessoryGroupSemaphores": "Семафори",
+    "accessoryGroupGate": "Шлагбауми"
 }

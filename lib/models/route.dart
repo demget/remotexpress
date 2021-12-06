@@ -1,6 +1,10 @@
+import 'package:remotexpress/net/accessory.dart';
+
 class Route {
-  String name;
+  final String name;
+  List<Accessory> turnouts = [];
   bool expanded = false;
 
-  Route(this.name);
+  Route(this.name, [List<Accessory>? turnouts])
+      : this.turnouts = turnouts ?? [];
 }

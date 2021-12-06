@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:remotexpress/l10n.dart';
 import 'package:remotexpress/formatters/range.dart';
+import 'package:remotexpress/net/accessory.dart';
 import 'package:remotexpress/widgets/toggle_button.dart';
 
 class AccessoriesControl extends StatefulWidget {
-  List<bool> accessories;
-  void Function(int) onToggle;
-  void Function(int) onAdd;
+  final List<Accessory> accessories;
+  final void Function(int) onToggle, onAddToGroup, onAddToRoute;
 
   AccessoriesControl({
     required this.accessories,
     required this.onToggle,
-    required this.onAdd,
+    required this.onAddToGroup,
+    required this.onAddToRoute,
   });
 
   @override
@@ -22,23 +23,16 @@ class AccessoriesControl extends StatefulWidget {
 class _AccessoriesControlState extends State<AccessoriesControl> {
   TextEditingController controller = TextEditingController();
 
-  // void toggleAccessory() {
-  //   final accessories = widget.accessories;
-  //   int i = (int.tryParse(controller.value.text) ?? 1) - 1;
-  //   if (i < 0 || i >= accessories.length) return;
-  //   setState(() => accessories[i] = !accessories[i]);
-  // }
-
   int address() {
     return (int.tryParse(controller.value.text) ?? 1) - 1;
   }
 
   bool isValid() {
     int i = address();
-    return i > 0 && i < widget.accessories.length;
+    return i >= 0 && i < widget.accessories.length;
   }
 
-  bool currentAccessory() {
+  Accessory currentAccessory() {
     return widget.accessories[address()];
   }
 
@@ -50,7 +44,7 @@ class _AccessoriesControlState extends State<AccessoriesControl> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
-            flex: 3,
+            flex: 5,
             child: TextFormField(
               controller: controller,
               onChanged: (_) => setState(() {}),
@@ -83,25 +77,39 @@ class _AccessoriesControlState extends State<AccessoriesControl> {
           ),
           SizedBox(width: 10),
           Expanded(
-            flex: 1,
+            flex: 3,
             child: ToggleButton(
-              on: currentAccessory(),
-              child: Text(currentAccessory() ? 'ON' : 'OFF'),
+              on: currentAccessory().on,
+              child: Text(currentAccessory().on ? 'ON' : 'OFF'),
               onPressed: isValid() ? () => widget.onToggle(address()) : null,
             ),
           ),
           SizedBox(width: 10),
           Expanded(
-            flex: 1,
+            flex: 2,
             child: Tooltip(
               message: L10n.of(context)!.addToGroupTooltip,
               child: ToggleButton(
                 on: false,
                 child: Icon(Icons.add_to_photos),
-                onPressed: isValid() ? () => widget.onAdd(address()) : null,
+                onPressed:
+                    isValid() ? () => widget.onAddToGroup(address()) : null,
               ),
             ),
-          )
+          ),
+          SizedBox(width: 10),
+          Expanded(
+            flex: 2,
+            child: Tooltip(
+              message: L10n.of(context)!.addToRouteTooltip,
+              child: ToggleButton(
+                on: false,
+                child: Icon(Icons.alt_route),
+                onPressed:
+                    isValid() ? () => widget.onAddToRoute(address()) : null,
+              ),
+            ),
+          ),
         ],
       ),
     );
