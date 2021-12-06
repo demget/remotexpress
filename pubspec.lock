@@ -178,6 +178,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.0"
+  icon_picker:
+    dependency: "direct main"
+    description:
+      name: icon_picker
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.1"
   infinite_listview:
     dependency: "direct main"
     description:

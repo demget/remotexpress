@@ -139,16 +139,6 @@ class _LocomotivePageState extends State<LocomotivePage> {
                     ),
                   ),
                   Padding(padding: EdgeInsets.only(bottom: 10)),
-                  // Flexible(
-                  //   flex: 1,
-                  //   child: LocomotiveFunctions(
-                  //     columns: 1,
-                  //     rows: 1,
-                  //     functions: loco.functions,
-                  //     onToggle: onFunctionToggle,
-                  //     childBuilder: (_) => Icon(Icons.lightbulb),
-                  //   ),
-                  // ),
                   Flexible(
                     flex: 4,
                     child: LocomotiveFunctions(

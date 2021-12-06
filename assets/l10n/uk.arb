@@ -21,6 +21,10 @@
     "errorBadConnectionContent": "Не вдалось встановити зʼєднання із сокетом командної станції. Спробуйте ще раз.",
     "errorBadConnectionPositive": "Повторити",
 
+    "dialogFunctionTitle": "Виберіть значок",
+    "dialogFunctionNegative": "Видалити",
+    "dialogFunctionLabel": "Значок",
+
     "addRouteTooltip": "Додати маршрут",
     "accessoryLabel": "Адрес",
     "addToGroupTooltip": "Додати до групи",

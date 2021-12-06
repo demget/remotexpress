@@ -17,6 +17,8 @@ class LaunchPage extends StatefulWidget {
 }
 
 class _LaunchPageState extends State<LaunchPage> with TickerProviderStateMixin {
+  static const defaultWifiName = 'dccXpress';
+
   late AnimationController iconAnimation;
   _LaunchStatus status = _LaunchStatus();
 
@@ -27,8 +29,8 @@ class _LaunchPageState extends State<LaunchPage> with TickerProviderStateMixin {
     final network = NetworkInfo();
     final wifiName = await network.getWifiName();
 
-    if (wifiName != 'dccXpress') {
-      CustomDialog.show(
+    if (wifiName != defaultWifiName) {
+      CustomDialog.error(
         context,
         title: L10n.of(context)!.errorBadWiFiTitle,
         content: L10n.of(context)!.errorBadWiFiContent,
@@ -44,7 +46,7 @@ class _LaunchPageState extends State<LaunchPage> with TickerProviderStateMixin {
     try {
       return await Station.connect();
     } catch (e) {
-      CustomDialog.show(
+      CustomDialog.error(
         context,
         title: L10n.of(context)!.errorBadConnectionTitle,
         content: L10n.of(context)!.errorBadConnectionContent,
