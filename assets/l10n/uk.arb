@@ -4,6 +4,7 @@
     "navigationLocomotive": "Локомотив",
     "navigationAccessories": "Аксесуари",
     "navigationCV": "CV",
+    "cvInProgress": "Розділ в розробці...",
 
     "launchStatusInitializing": "Ініціалізація",
     "launchStatusChecking": "Перевірка підʼєднанного Wi-Fi",

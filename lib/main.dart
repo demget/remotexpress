@@ -8,7 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:remotexpress/l10n.dart';
 
 import 'package:remotexpress/pages/accessories/accessories.dart';
-import 'package:remotexpress/pages/debug.dart';
+import 'package:remotexpress/pages/debug/debug.dart';
 import 'package:remotexpress/pages/launch.dart';
 import 'package:remotexpress/pages/locomotive/locomotive.dart';
 

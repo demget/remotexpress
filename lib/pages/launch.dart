@@ -5,6 +5,7 @@ import 'package:network_info_plus/network_info_plus.dart';
 import 'package:remotexpress/l10n.dart';
 import 'package:remotexpress/net/station.dart';
 import 'package:remotexpress/widgets/custom_dialog.dart';
+import 'package:remotexpress/widgets/logo.dart';
 
 class LaunchPage extends StatefulWidget {
   final bool debug;
@@ -16,10 +17,8 @@ class LaunchPage extends StatefulWidget {
   _LaunchPageState createState() => _LaunchPageState();
 }
 
-class _LaunchPageState extends State<LaunchPage> with TickerProviderStateMixin {
+class _LaunchPageState extends State<LaunchPage> {
   static const defaultWifiName = 'dccXpress';
-
-  late AnimationController iconAnimation;
   _LaunchStatus status = _LaunchStatus();
 
   Future<Station?> launch() async {
@@ -79,67 +78,11 @@ class _LaunchPageState extends State<LaunchPage> with TickerProviderStateMixin {
   }
 
   @override
-  void initState() {
-    iconAnimation = AnimationController(
-      vsync: this,
-      duration: Duration(seconds: 2),
-      lowerBound: 10.0,
-      upperBound: 80.0,
-    )..forward();
-
-    iconAnimation.addStatusListener((status) async {
-      if (status == AnimationStatus.completed) {
-        await tryLaunch();
-      }
-    });
-
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    iconAnimation.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Stack(
       fit: StackFit.expand,
       children: [
-        AnimatedBuilder(
-          animation: iconAnimation,
-          builder: (context, child) {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Icon(
-                    Icons.train,
-                    size: iconAnimation.value,
-                    color: Theme.of(context).primaryColorDark,
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 20.0),
-                ),
-                Text(
-                  "Xpress",
-                  style: GoogleFonts.lato(
-                    color: Colors.grey[200],
-                    fontWeight: FontWeight.bold,
-                    fontSize: iconAnimation.value - 20,
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
+        Logo.animated(tryLaunch),
         Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
