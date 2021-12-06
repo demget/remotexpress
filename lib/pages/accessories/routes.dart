@@ -1,16 +1,18 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart' hide Route;
 import 'package:google_fonts/google_fonts.dart';
+import 'package:remotexpress/l10n.dart';
 import 'package:remotexpress/models/route.dart';
 import 'package:remotexpress/pages/accessories/buttons.dart';
 
 class AccessoryRoutes extends StatefulWidget {
   final List<Route> routes;
-  final void Function(Route route) onPlay;
+  final void Function(Route route) onPlay, onDelete;
 
   AccessoryRoutes({
     required this.routes,
     required this.onPlay,
+    required this.onDelete,
   });
 
   @override
@@ -25,7 +27,7 @@ class _AccessoryRoutesState extends State<AccessoryRoutes> {
         IconButton(
           icon: Icon(expanded ? Icons.play_arrow : Icons.alt_route),
           color: Theme.of(context).primaryColor,
-          onPressed: () => widget.onPlay(route),
+          onPressed: () => expanded ? widget.onPlay(route) : widget.onDelete(route),
         ),
         Text(
           route.name,
@@ -75,19 +77,29 @@ class _AccessoryRoutesState extends State<AccessoryRoutes> {
                         children: [
                           headerRow(context, route, true),
                           SizedBox(height: 5),
-                          Container(
-                            height: 40,
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: AbsorbPointer(
-                                child: AccessoryButtons(
-                                  accessories: route.turnouts,
-                                  childBuilder: (a) => Text('A$a'),
-                                  onToggle: null,
-                                ),
-                              ),
-                            ),
-                          ),
+                          route.turnouts.length != 0
+                              ? Container(
+                                  height: 40,
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: AbsorbPointer(
+                                      child: AccessoryButtons(
+                                        accessories: route.turnouts,
+                                        childBuilder: (a) => Text('A$a'),
+                                        onToggle: null,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : Padding(
+                                  padding: EdgeInsets.only(bottom: 3, left: 20),
+                                  child: Text(
+                                    L10n.of(context)!.accessoriesEmpty,
+                                    style: TextStyle(
+                                      color: Colors.grey[300],
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  )),
                         ],
                       ),
                     ),

@@ -123,7 +123,7 @@ class _HomePageState extends State<HomePage> {
                     },
                   )
                 : Container(
-                    padding: EdgeInsets.only(bottom: 10),
+                    // padding: EdgeInsets.only(bottom: 10),
                     child: IndexedStack(
                       index: selectedPage,
                       children: pages,
@@ -169,7 +169,12 @@ class _HomePageState extends State<HomePage> {
           ? FloatingActionButton(
               child: Icon(Icons.alt_route),
               tooltip: L10n.of(context)!.addRouteTooltip,
-              onPressed: () {},
+              onPressed: () {
+                final page = pages[selectedPage];
+                if (page is AccessoriesPage) {
+                  page.floatingButtonAction();
+                }
+              },
             )
           : null,
     );

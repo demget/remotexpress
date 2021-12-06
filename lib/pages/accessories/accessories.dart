@@ -13,8 +13,17 @@ class AccessoriesPage extends StatefulWidget {
 
   AccessoriesPage(this.station);
 
+  late _AccessoriesPageState _state;
+
   @override
-  _AccessoriesPageState createState() => _AccessoriesPageState(station);
+  _AccessoriesPageState createState() {
+    _state = _AccessoriesPageState(station);
+    return _state;
+  }
+
+  void floatingButtonAction() {
+    _state.onAddRoute();
+  }
 }
 
 class _AccessoriesPageState extends State<AccessoriesPage> {
@@ -154,10 +163,51 @@ class _AccessoriesPageState extends State<AccessoriesPage> {
     );
   }
 
+  void onAddRoute() {
+    final TextEditingController controller = TextEditingController();
+
+    CustomDialog.show(
+      context,
+      title: 'Введіть назву маршруту',
+      icon: Icons.alt_route,
+      child: StatefulBuilder(
+        builder: (builder, setState) => TextField(
+          controller: controller,
+          decoration: InputDecoration(hintText: 'Назва'),
+          onChanged: (v) {
+            setState(() {});
+          },
+        ),
+      ),
+      positiveText: 'Додати',
+      negativeText: 'Відміна',
+      onPositivePressed: () {
+        setState(() => routes.add(Route(controller.value.text)));
+        CustomDialog.pop(context);
+      },
+      onNegativePressed: () => CustomDialog.pop(context),
+    );
+  }
+
   void onPlayRoute(Route route) {
     route.turnouts.forEach((accessory) {
       station.updateAccessory(accessory);
     });
+  }
+
+  void onDeleteRoute(Route route) {
+    CustomDialog.error(
+      context,
+      title: 'Видалення маршруту',
+      content: 'Ви впевнені, що хочете видалити ${route.name}?',
+      positiveText: 'Видалити',
+      negativeText: 'Відміна',
+      onPositivePressed: () {
+        setState(() => routes.remove(route));
+        CustomDialog.pop(context);
+      },
+      onNegativePressed: () => CustomDialog.pop(context),
+    );
   }
 
   @override
@@ -189,6 +239,7 @@ class _AccessoriesPageState extends State<AccessoriesPage> {
             child: AccessoryRoutes(
               routes: routes,
               onPlay: onPlayRoute,
+              onDelete: onDeleteRoute,
             ),
           ),
         ],
