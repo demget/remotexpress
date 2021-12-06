@@ -6,6 +6,7 @@ import 'package:remotexpress/l10n.dart';
 import 'package:remotexpress/net/loco.dart';
 import 'package:remotexpress/widgets/custom_dialog.dart';
 import 'package:remotexpress/widgets/toggle_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LocomotiveFunctions extends StatefulWidget {
   final int columns, rows, offset;
@@ -34,7 +35,28 @@ class _LocomotiveFunctionsState extends State<LocomotiveFunctions> {
     'traffic_rounded': Icons.traffic_rounded,
   };
 
+  late SharedPreferences prefs;
   Map<int, String> icons = {};
+
+  void setPrefs() {
+    Future.delayed(Duration.zero, () async {
+      await prefs.setStringList('functions', icons.values.toList());
+    });
+  }
+
+  @override
+  void initState() {
+    Future.delayed(Duration.zero, () async {
+      prefs = await SharedPreferences.getInstance();
+      if (prefs.containsKey('functions')) {
+        List<String> list = prefs.getStringList('functions')!;
+        icons = Map.fromIterable(list, key: (v) => list.indexOf(v));
+      }
+      setState(() {});
+    });
+
+    super.initState();
+  }
 
   void onLongPress(int f) {
     CustomDialog.show(
@@ -45,6 +67,7 @@ class _LocomotiveFunctionsState extends State<LocomotiveFunctions> {
       negativeText: L10n.of(context)!.dialogFunctionNegative,
       onNegativePressed: () {
         setState(() => icons.remove(f));
+        setPrefs();
         CustomDialog.pop(context);
       },
     );
@@ -73,9 +96,8 @@ class _LocomotiveFunctionsState extends State<LocomotiveFunctions> {
       enableSearch: false,
       iconCollection: iconCollection,
       onChanged: (v) {
-        setState(() {
-          icons[f] = jsonDecode(v)['iconName'];
-        });
+        setState(() => icons[f] = jsonDecode(v)['iconName']);
+        setPrefs();
       },
     );
   }

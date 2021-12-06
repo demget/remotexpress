@@ -94,7 +94,7 @@ class _AccessoryGroupsState extends State<AccessoryGroups> {
               radius: 40,
               backgroundColor: Theme.of(context).primaryColor,
               child: IconButton(
-                icon: Icon(widget.groups[i].icon),
+                icon: Icon(widget.groups[i].icon()),
                 iconSize: 40,
                 color: Colors.white,
                 onPressed: () {},

@@ -1,12 +1,18 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart' hide Route;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:remotexpress/widgets/custom_dialog.dart';
+
+import 'package:remotexpress/models/accessory.dart';
 import 'package:remotexpress/models/group.dart';
-import 'package:remotexpress/net/accessory.dart';
+import 'package:remotexpress/models/route.dart';
+
 import 'package:remotexpress/pages/accessories/control.dart';
 import 'package:remotexpress/pages/accessories/groups.dart';
 import 'package:remotexpress/pages/accessories/routes.dart';
+
 import 'package:remotexpress/net/station.dart';
-import 'package:remotexpress/models/route.dart';
-import 'package:remotexpress/widgets/custom_dialog.dart';
 
 class AccessoriesPage extends StatefulWidget {
   final Station station;
@@ -28,23 +34,22 @@ class AccessoriesPage extends StatefulWidget {
 
 class _AccessoriesPageState extends State<AccessoriesPage> {
   final Station station;
+  late SharedPreferences prefs;
 
   _AccessoriesPageState(this.station);
 
-  List<Accessory> accessories = List.generate(
+  static final defaultAccessories = List.generate(
     1024,
     (i) => Accessory(i + 1),
   );
-
-  List<Group> groups = [
-    Group('Стрілки', Icons.compare_arrows),
-    Group('Світло', Icons.lightbulb),
-    Group('Звук', Icons.volume_up),
-    Group('Семафори', Icons.traffic),
-    Group('Шлагбауми', Icons.fence),
+  static final defaultGroups = [
+    Group('Стрілки', Icons.compare_arrows.codePoint),
+    Group('Світло', Icons.lightbulb.codePoint),
+    Group('Звук', Icons.volume_up.codePoint),
+    Group('Семафори', Icons.traffic.codePoint),
+    Group('Шлагбауми', Icons.fence.codePoint),
   ];
-
-  List<Route> routes = [
+  static final defaultRoutes = [
     Route(
       'Тестовий маршрут',
       [
@@ -56,14 +61,59 @@ class _AccessoriesPageState extends State<AccessoriesPage> {
     ),
   ];
 
+  List<Accessory> accessories = defaultAccessories;
+  List<Group> groups = [];
+  List<Route> routes = [];
+
   late String selectedGroup;
   late String selectedRoute;
 
+  void setPrefs() {
+    Future set(String key, Object object) async {
+      return await prefs.setString(key, jsonEncode(object));
+    }
+
+    Future.delayed(Duration.zero, () async {
+      await set('groups', groups);
+      await set('routes', routes);
+    });
+  }
+
   @override
   void initState() {
+    Future.delayed(Duration.zero, () async {
+      final prefs = await SharedPreferences.getInstance();
+
+      Future setIfNotContains(String key, Object object) async {
+        if (!prefs.containsKey(key)) {
+          await prefs.setString(key, jsonEncode(object));
+        }
+      }
+
+      List<T> decodeList<T>(String key, T Function(dynamic) decode) {
+        return jsonDecode(prefs.getString(key)!).map<T>(decode).toList();
+      }
+
+      // First start
+      await setIfNotContains('groups', defaultGroups);
+      await setIfNotContains('routes', defaultRoutes);
+
+      groups = decodeList(
+        'groups',
+        (json) => Group.fromJson(json),
+      );
+      routes = decodeList(
+        'routes',
+        (json) => Route.fromJson(json),
+      );
+
+      selectedGroup = groups[0].name;
+      selectedRoute = routes[0].name;
+
+      setState(() {});
+    });
+
     super.initState();
-    selectedGroup = groups[0].name;
-    selectedRoute = routes[0].name;
   }
 
   void onToggle(int i) {
@@ -104,6 +154,7 @@ class _AccessoriesPageState extends State<AccessoriesPage> {
           final group = groups.where((g) => g.name == selectedGroup).first;
           if (!group.accessories.contains(accessory)) {
             group.accessories.add(accessory);
+            setPrefs();
           }
         });
         CustomDialog.pop(context);
@@ -112,6 +163,7 @@ class _AccessoriesPageState extends State<AccessoriesPage> {
         setState(() {
           final group = groups.where((g) => g.name == selectedGroup).first;
           group.accessories.remove(accessory);
+          setPrefs();
         });
         CustomDialog.pop(context);
       },
@@ -148,6 +200,7 @@ class _AccessoriesPageState extends State<AccessoriesPage> {
           final route = routes.where((r) => r.name == selectedRoute).first;
           if (!route.turnouts.contains(accessory)) {
             route.turnouts.add(accessory);
+            setPrefs();
           }
         });
         CustomDialog.pop(context);
@@ -157,10 +210,17 @@ class _AccessoriesPageState extends State<AccessoriesPage> {
           final route = routes.where((r) => r.name == selectedRoute).first;
           final turnout = route.turnouts.where((t) => t.a == accessory.a).first;
           route.turnouts.remove(turnout);
+          setPrefs();
         });
         CustomDialog.pop(context);
       },
     );
+  }
+
+  void onPlayRoute(Route route) {
+    route.turnouts.forEach((accessory) {
+      station.updateAccessory(accessory);
+    });
   }
 
   void onAddRoute() {
@@ -183,16 +243,11 @@ class _AccessoriesPageState extends State<AccessoriesPage> {
       negativeText: 'Відміна',
       onPositivePressed: () {
         setState(() => routes.add(Route(controller.value.text)));
+        setPrefs();
         CustomDialog.pop(context);
       },
       onNegativePressed: () => CustomDialog.pop(context),
     );
-  }
-
-  void onPlayRoute(Route route) {
-    route.turnouts.forEach((accessory) {
-      station.updateAccessory(accessory);
-    });
   }
 
   void onDeleteRoute(Route route) {
@@ -204,6 +259,7 @@ class _AccessoriesPageState extends State<AccessoriesPage> {
       negativeText: 'Відміна',
       onPositivePressed: () {
         setState(() => routes.remove(route));
+        setPrefs();
         CustomDialog.pop(context);
       },
       onNegativePressed: () => CustomDialog.pop(context),

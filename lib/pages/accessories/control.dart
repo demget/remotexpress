@@ -28,11 +28,13 @@ class _AccessoriesControlState extends State<AccessoriesControl> {
   }
 
   bool isValid() {
+    if (controller.value.text.isEmpty) return false;
     int i = address();
     return i >= 0 && i < widget.accessories.length;
   }
 
   Accessory currentAccessory() {
+    if (!isValid()) return Accessory(0);
     return widget.accessories[address()];
   }
 

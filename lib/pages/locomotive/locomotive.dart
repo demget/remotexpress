@@ -144,7 +144,6 @@ class _LocomotivePageState extends State<LocomotivePage> {
                     child: LocomotiveFunctions(
                       columns: 3,
                       rows: 5,
-                      // offset: 1,
                       functions: loco.functions,
                       onToggle: onFunctionToggle,
                       childBuilder: (f) => Text('F$f'),
