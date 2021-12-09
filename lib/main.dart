@@ -74,7 +74,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool debug = true;
+  bool debug = false;
   bool connected = false;
   late Widget bodyWidget;
 
@@ -96,87 +96,90 @@ class _HomePageState extends State<HomePage> {
       statusBarColor: Colors.transparent,
     ));
 
-    return Scaffold(
-      extendBody: true,
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.bottomLeft,
-            end: Alignment.topRight,
-            colors: [
-              Color(0xff202139),
-              Color(0xff313045),
-            ],
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+        extendBody: true,
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.bottomLeft,
+              end: Alignment.topRight,
+              colors: [
+                Color(0xff202139),
+                Color(0xff313045),
+              ],
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: AnimatedSwitcher(
-            duration: const Duration(seconds: 1),
-            child: !connected
-                ? LaunchPage(
-                    debug: debug,
-                    onLaunched: (station) {
-                      pages.add(LocomotivePage(station));
-                      pages.add(AccessoriesPage(station));
-                      pages.add(DebugPage());
-                      setState(() => connected = true);
-                    },
-                  )
-                : Container(
-                    // padding: EdgeInsets.only(bottom: 10),
-                    child: IndexedStack(
-                      index: selectedPage,
-                      children: pages,
+          child: SafeArea(
+            child: AnimatedSwitcher(
+              duration: const Duration(seconds: 1),
+              child: !connected
+                  ? LaunchPage(
+                      debug: debug,
+                      onLaunched: (station) {
+                        pages.add(LocomotivePage(station));
+                        pages.add(AccessoriesPage(station));
+                        pages.add(DebugPage());
+                        setState(() => connected = true);
+                      },
+                    )
+                  : Container(
+                      // padding: EdgeInsets.only(bottom: 10),
+                      child: IndexedStack(
+                        index: selectedPage,
+                        children: pages,
+                      ),
                     ),
-                  ),
+            ),
           ),
         ),
+        bottomNavigationBar: connected
+            ? ClipRRect(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30.0),
+                  topRight: Radius.circular(30.0),
+                ),
+                child: BottomNavigationBar(
+                  elevation: 5,
+                  currentIndex: selectedPage,
+                  onTap: onNavigationItem,
+                  items: [
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.train),
+                      label: L10n.of(context)!.navigationLocomotive,
+                      tooltip: '',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: selectedPage != 1
+                          ? Icon(Icons.memory)
+                          : Container(width: 20, height: 20),
+                      label: L10n.of(context)!.navigationAccessories,
+                      tooltip: '',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.amp_stories),
+                      label: L10n.of(context)!.navigationCV,
+                      tooltip: '',
+                    ),
+                  ],
+                ),
+              )
+            : null,
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton: selectedPage == 1
+            ? FloatingActionButton(
+                child: Icon(Icons.alt_route),
+                tooltip: L10n.of(context)!.addRouteTooltip,
+                onPressed: () {
+                  final page = pages[selectedPage];
+                  if (page is AccessoriesPage) {
+                    page.floatingButtonAction();
+                  }
+                },
+              )
+            : null,
       ),
-      bottomNavigationBar: connected
-          ? ClipRRect(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(30.0),
-                topRight: Radius.circular(30.0),
-              ),
-              child: BottomNavigationBar(
-                elevation: 5,
-                currentIndex: selectedPage,
-                onTap: onNavigationItem,
-                items: [
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.train),
-                    label: L10n.of(context)!.navigationLocomotive,
-                    tooltip: '',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: selectedPage != 1
-                        ? Icon(Icons.memory)
-                        : Container(width: 20, height: 20),
-                    label: L10n.of(context)!.navigationAccessories,
-                    tooltip: '',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.amp_stories),
-                    label: L10n.of(context)!.navigationCV,
-                    tooltip: '',
-                  ),
-                ],
-              ),
-            )
-          : null,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: selectedPage == 1
-          ? FloatingActionButton(
-              child: Icon(Icons.alt_route),
-              tooltip: L10n.of(context)!.addRouteTooltip,
-              onPressed: () {
-                final page = pages[selectedPage];
-                if (page is AccessoriesPage) {
-                  page.floatingButtonAction();
-                }
-              },
-            )
-          : null,
     );
   }
 }
