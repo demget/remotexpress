@@ -28,7 +28,7 @@ class Logo extends StatelessWidget {
         ),
         Text(
           "Xpress",
-          style: GoogleFonts.lato(
+          style: TextStyle(
             color: Colors.grey[200],
             fontWeight: FontWeight.bold,
             fontSize: 60,
@@ -101,7 +101,7 @@ class __AnimatedLogoState extends State<_AnimatedLogo>
             ),
             Text(
               "Xpress",
-              style: GoogleFonts.lato(
+              style: TextStyle(
                 color: Colors.grey[200],
                 fontWeight: FontWeight.bold,
                 fontSize: iconAnimation.value - 20,

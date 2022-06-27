@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart' hide Route;
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:remotexpress/widgets/custom_dialog.dart';
 
 import 'package:remotexpress/models/accessory.dart';
@@ -13,6 +14,8 @@ import 'package:remotexpress/pages/accessories/groups.dart';
 import 'package:remotexpress/pages/accessories/routes.dart';
 
 import 'package:remotexpress/net/station.dart';
+
+// TODO: L10n
 
 class AccessoriesPage extends StatefulWidget {
   final Station station;
@@ -44,20 +47,14 @@ class _AccessoriesPageState extends State<AccessoriesPage> {
   );
   static final defaultGroups = [
     Group('Стрілки', Icons.compare_arrows.codePoint),
-    Group('Світло', Icons.lightbulb.codePoint),
-    Group('Звук', Icons.volume_up.codePoint),
-    Group('Семафори', Icons.traffic.codePoint),
+    Group('Світлофори', Icons.traffic.codePoint),
+    Group('Освітлення', Icons.lightbulb.codePoint),
     Group('Шлагбауми', Icons.fence.codePoint),
   ];
   static final defaultRoutes = [
     Route(
       'Тестовий маршрут',
-      [
-        Accessory(3, false),
-        Accessory(2, true),
-        Accessory(4, true),
-        Accessory(5, false),
-      ],
+      [],
     ),
   ];
 
@@ -70,6 +67,7 @@ class _AccessoriesPageState extends State<AccessoriesPage> {
 
   void setPrefs() {
     Future set(String key, Object object) async {
+      final prefs = await SharedPreferences.getInstance();
       return await prefs.setString(key, jsonEncode(object));
     }
 
@@ -119,6 +117,15 @@ class _AccessoriesPageState extends State<AccessoriesPage> {
   void onToggle(int i) {
     final accessory = accessories[i];
     setState(() => accessory.toggle());
+
+    groups.forEach((group) {
+      group.accessories.forEach((groupAccessory) {
+        if (accessory.a == groupAccessory.a) {
+          setState(() => groupAccessory.on = accessory.on);
+        }
+      });
+    });
+
     station.updateAccessory(accessory);
   }
 
@@ -161,9 +168,12 @@ class _AccessoriesPageState extends State<AccessoriesPage> {
       },
       onNegativePressed: () {
         setState(() {
-          final group = groups.where((g) => g.name == selectedGroup).first;
-          group.accessories.remove(accessory);
-          setPrefs();
+          try {
+            final group = groups.where((g) => g.name == selectedGroup).first;
+            final a = group.accessories.where((a) => a.a == accessory.a).first;
+            group.accessories.remove(a);
+            setPrefs();
+          } catch (e) {}
         });
         CustomDialog.pop(context);
       },
@@ -171,27 +181,30 @@ class _AccessoriesPageState extends State<AccessoriesPage> {
   }
 
   void onAddToRoute(int i) {
-    final accessory = accessories[i];
+    var accessory = accessories[i];
+    accessory = Accessory(accessory.a, accessory.on);
 
     CustomDialog.show(
       context,
       title: 'Виберіть маршрут',
       icon: Icons.alt_route,
-      child: DropdownButton(
-        value: selectedRoute,
-        isExpanded: true,
-        dropdownColor: Colors.white,
-        items: routes
-            .map<DropdownMenuItem<String>>(
-              (route) => DropdownMenuItem(
-                child: Text(route.name),
-                value: route.name,
-              ),
-            )
-            .toList(),
-        onChanged: (route) {
-          setState(() => selectedRoute = route.toString());
-        },
+      child: StatefulBuilder(
+        builder: (builder, setState) => DropdownButton(
+          value: selectedRoute,
+          isExpanded: true,
+          dropdownColor: Colors.white,
+          items: routes
+              .map<DropdownMenuItem<String>>(
+                (route) => DropdownMenuItem(
+                  child: Text(route.name),
+                  value: route.name,
+                ),
+              )
+              .toList(),
+          onChanged: (route) {
+            setState(() => selectedRoute = route.toString());
+          },
+        ),
       ),
       positiveText: 'Додати',
       negativeText: 'Видалити',
@@ -217,9 +230,16 @@ class _AccessoriesPageState extends State<AccessoriesPage> {
     );
   }
 
-  void onPlayRoute(Route route) {
-    route.turnouts.forEach((accessory) {
+  void onPlayRoute(Route route) async {
+    await Future.forEach(route.turnouts, (Accessory accessory) async {
       station.updateAccessory(accessory);
+      setState(() => accessory.played = true);
+      await Future.delayed(Duration(milliseconds: 500));
+    });
+
+    await Future.forEach(route.turnouts, (Accessory accessory) async {
+      setState(() => accessory.played = false);
+      await Future.delayed(Duration(milliseconds: 300));
     });
   }
 

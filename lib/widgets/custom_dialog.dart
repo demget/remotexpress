@@ -149,7 +149,7 @@ class _CustomDialogState extends State<CustomDialog> {
               widget.content != null
                   ? Text(
                       widget.content!,
-                      style: Theme.of(context).textTheme.bodyText2,
+                      style: Theme.of(context).textTheme.caption,
                       textAlign: TextAlign.center,
                     )
                   : widget.child!,

@@ -20,7 +20,7 @@ class LocoFunction {
 
   int groupAddress() {
     if (f == 0) return 3;
-    return 8 - (f > 4 ? (f - 4 * (f - 1) ~/ 4) : f);
+    return 8 - (f - ((f - 1) ~/ 4 * 4));
   }
 }
 
@@ -43,7 +43,7 @@ class Loco {
   int speedByte() {
     if (speed == 0) return 0;
 
-    bool forward = direction == LocoDirections.forward;
+    bool forward = direction != LocoDirections.reverse;
     int byte = forward ? 0x81 : 0x01;
 
     if (speed % 2 == 0) {
@@ -61,10 +61,9 @@ class Loco {
   }
 
   int functionsByte(int group) {
-    int byte = 1;
-    functions.where((f) => f.group() == group).forEach((f) {
-      byte = (byte << 1) + (f.on ? 1 : 0);
-    });
+    int byte = 0;
+    final fs = functions.where((f) => f.group() == group && f.on);
+    fs.forEach((f) => byte += 0x80 >> f.groupAddress());
     return byte;
   }
 }

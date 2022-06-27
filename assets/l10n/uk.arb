@@ -27,9 +27,12 @@
     "dialogFunctionLabel": "Значок",
 
     "addRouteTooltip": "Додати маршрут",
-    "accessoryLabel": "Адрес",
+    "accessoryLabel": "Адреса",
     "addToRouteTooltip": "Додати до маршруту",
     "addToGroupTooltip": "Додати до групи",
+
+    "cvLabel": "Адреса",
+    "cvDataLabel": "CV",
 
     "accessoriesEmpty": "Пусто...",
     "accessoryGroupTurnouts": "Стрілки",

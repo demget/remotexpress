@@ -1,7 +1,5 @@
 import 'dart:io';
-import 'dart:ui';
 
-import 'package:clippy_flutter/arc.dart';
 import 'package:window_size/window_size.dart' as window;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -120,12 +118,12 @@ class _HomePageState extends State<HomePage> {
                       onLaunched: (station) {
                         pages.add(LocomotivePage(station));
                         pages.add(AccessoriesPage(station));
-                        pages.add(DebugPage());
+                        pages.add(DebugPage(station));
                         setState(() => connected = true);
                       },
                     )
                   : Container(
-                      // padding: EdgeInsets.only(bottom: 10),
+                      padding: EdgeInsets.only(bottom: 10),
                       child: IndexedStack(
                         index: selectedPage,
                         children: pages,

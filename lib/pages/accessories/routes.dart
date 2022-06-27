@@ -27,11 +27,12 @@ class _AccessoryRoutesState extends State<AccessoryRoutes> {
         IconButton(
           icon: Icon(expanded ? Icons.play_arrow : Icons.alt_route),
           color: Theme.of(context).primaryColor,
-          onPressed: () => expanded ? widget.onPlay(route) : widget.onDelete(route),
+          onPressed: () =>
+              expanded ? widget.onPlay(route) : widget.onDelete(route),
         ),
         Text(
           route.name,
-          style: GoogleFonts.lato(
+          style: TextStyle(
             color: Colors.grey[300],
             fontSize: 16,
           ),
@@ -86,7 +87,7 @@ class _AccessoryRoutesState extends State<AccessoryRoutes> {
                                       child: AccessoryButtons(
                                         accessories: route.turnouts,
                                         childBuilder: (a) => Text('A$a'),
-                                        onToggle: null,
+                                        onToggle: null, // TODO
                                       ),
                                     ),
                                   ),
@@ -99,7 +100,8 @@ class _AccessoryRoutesState extends State<AccessoryRoutes> {
                                       color: Colors.grey[300],
                                       fontStyle: FontStyle.italic,
                                     ),
-                                  )),
+                                  ),
+                                ),
                         ],
                       ),
                     ),

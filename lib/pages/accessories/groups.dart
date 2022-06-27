@@ -7,7 +7,7 @@ import 'package:remotexpress/pages/accessories/buttons.dart';
 
 class AccessoryGroups extends StatefulWidget {
   final List<Group> groups;
-  final void Function(int)? onToggle;
+  final void Function(int) onToggle;
 
   AccessoryGroups({
     required this.groups,
@@ -53,7 +53,7 @@ class _AccessoryGroupsState extends State<AccessoryGroups> {
                     padding: EdgeInsets.only(left: 40),
                     child: Text(
                       widget.groups[i].name,
-                      style: GoogleFonts.lato(
+                      style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                       ),
@@ -70,6 +70,7 @@ class _AccessoryGroupsState extends State<AccessoryGroups> {
                               accessories: widget.groups[i].accessories,
                               childBuilder: (a) => Text('A$a'),
                               onToggle: widget.onToggle,
+                              sort: true,
                             ),
                           )
                         : Padding(

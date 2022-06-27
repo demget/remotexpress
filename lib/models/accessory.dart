@@ -5,6 +5,8 @@ part 'accessory.g.dart';
 
 @JsonSerializable()
 class Accessory extends net.Accessory {
+  bool played = false;
+
   Accessory(int a, [bool on = false]) : super(a, on);
 
   factory Accessory.fromJson(Map<String, dynamic> json) =>

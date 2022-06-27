@@ -1,82 +1,71 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:remotexpress/l10n.dart';
-import 'package:remotexpress/widgets/logo.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:remotexpress/net/station.dart';
+import 'package:remotexpress/pages/debug/control.dart';
+import 'package:remotexpress/pages/debug/output.dart';
+import 'package:remotexpress/models/cv.dart';
 
 class DebugPage extends StatefulWidget {
-  DebugPage({Key? key}) : super(key: key);
+  final Station station;
+
+  DebugPage(this.station);
+
+  late _DebugPageState _state;
 
   @override
-  _DebugPageState createState() => _DebugPageState();
+  _DebugPageState createState() {
+    _state = _DebugPageState(station);
+    return _state;
+  }
 }
 
 class _DebugPageState extends State<DebugPage> {
+  static final defaultCvs = List.generate(
+    1024,
+    (i) => Cv(i + 1),
+  );
+
+  late Station station;
+  final List<List<int>> output = [];
+  final List<Cv> cvs = defaultCvs;
+
+  late SharedPreferences prefs;
+
+  _DebugPageState(Station? station) {
+    if (station != null) {
+      station.listen((List<int> command) {
+        setState(() => output.add(command));
+      });
+      this.station = station;
+    }
+  }
+
+  void onConfigure(Cv cv) {
+    station.configure(cv.a, cv.b);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Align(
-        alignment: Alignment.center,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Logo(),
-            SizedBox(height: 20),
-            Text(
-              L10n.of(context)!.cvInProgress,
-              style: GoogleFonts.lato(
-                fontSize: 18,
-                color: Colors.white,
-              ),
-            )
-          ],
-        ));
-
-    // Column(
-    //   mainAxisAlignment: MainAxisAlignment.start,
-    //   children: [
-    //     IntrinsicHeight(
-    //       child: Row(
-    //         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-    //         crossAxisAlignment: CrossAxisAlignment.stretch,
-    //         children: [
-    //           Expanded(
-    //             child: TextField(
-    //               style: TextStyle(fontSize: 15),
-    //               textAlign: TextAlign.center,
-    //               decoration: InputDecoration(labelText: "CV"),
-    //               keyboardType: TextInputType.number,
-    //               inputFormatters: <TextInputFormatter>[
-    //                 FilteringTextInputFormatter.digitsOnly,
-    //                 RangeTextInputFormatter(min: 0, max: 1024),
-    //               ],
-    //             ),
-    //           ),
-    //           SizedBox(width: 10),
-    //           Expanded(
-    //             child: TextField(
-    //               style: TextStyle(fontSize: 15),
-    //               textAlign: TextAlign.center,
-    //               decoration: InputDecoration(labelText: "Value"),
-    //               keyboardType: TextInputType.number,
-    //               inputFormatters: <TextInputFormatter>[
-    //                 FilteringTextInputFormatter.digitsOnly,
-    //                 RangeTextInputFormatter(min: 0, max: 1024),
-    //               ],
-    //             ),
-    //           ),
-    //           SizedBox(width: 10),
-    //           Expanded(
-    //             child: Padding(
-    //               padding: EdgeInsets.only(top: 15, bottom: 0),
-    //               child: ElevatedButton(
-    //                 onPressed: () {},
-    //                 child: Text("PROGRAM!"),
-    //               ),
-    //             ),
-    //           ),
-    //         ],
-    //       ),
-    //     ),
-    //   ],
-    // );
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15),
+            child: DebugControl(
+              cvs: cvs,
+              onConfigure: onConfigure,
+            ),
+          ),
+          SizedBox(height: 20),
+          Expanded(
+            flex: 3,
+            child: DebugOutput(output: output),
+          ),
+        ],
+      ),
+    );
   }
 }

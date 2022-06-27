@@ -15,33 +15,37 @@ class Station {
   static const defaultPort = 333;
 
   bool _debug = false;
-  late Socket _socket;
+  late Socket _wifi;
 
-  Station(this._socket);
-  Station.todo() {
-    _debug = true;
-  }
+  Station.wifi(this._wifi);
+  Station.todo() : _debug = true;
 
   static Future<Station> connect() async {
     // ignore: close_sinks
     final socket = await Socket.connect(defaultIp, defaultPort);
-    return Station(socket);
+    return Station.wifi(socket);
+  }
+
+  void listen(void Function(List<int>) f) {
+    if (_debug) return;
+    _wifi.listen(f);
   }
 
   void send(Command command) {
     if (_debug) return;
-    _socket.add(command.bytes());
+    _wifi.add(command.bytes());
   }
 
-  void send2(Command command) {
+  void send2(Command command) async {
     if (_debug) return;
     final bytes = command.bytes();
-    _socket.add(bytes);
-    _socket.add(bytes);
+    _wifi.add(bytes);
+    await Future.delayed(Duration(milliseconds: 50));
+    _wifi.add(bytes);
   }
 
   void close() async {
-    await _socket.close();
+    await _wifi.close();
   }
 
   void stop() {
@@ -71,17 +75,20 @@ class Station {
     }
   }
 
-  void configure(int cv, int data) {
+  void configure(int cv, int data) async {
     // XpressNet 3.6
-    if (cv == 1024) cv = 0;
+    // if (cv == 1024) cv = 0;
 
-    send(XorCommand([0x23, 0x1C + (cv ~/ 256), cv, data]));
-    resume();
+    // send(XorCommand([0x23, 0x1C + (cv ~/ 256), cv, data]));
+    // resume();
 
     // XpressNet 3.0
     if (cv >= 256) cv = 0;
 
-    send(XorCommand([0x23, 0x16, cv, data]));
+    send(XorCommand([0x22, 0x15, cv]));
+    await Future.delayed(Duration(milliseconds: 100));
+    send2(XorCommand([0x23, 0x16, cv, data]));
+    await Future.delayed(Duration(milliseconds: 100));
     resume();
   }
 

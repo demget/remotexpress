@@ -23,7 +23,7 @@ class LocomotiveSpeedTrack extends StatefulWidget {
 }
 
 class _LocomotiveSpeedTrackState extends State<LocomotiveSpeedTrack> {
-  static final labelStyle = GoogleFonts.lato(
+  static final labelStyle = TextStyle(
     color: Colors.grey,
     fontSize: 12,
     fontWeight: FontWeight.bold,

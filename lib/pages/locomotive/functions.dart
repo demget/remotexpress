@@ -29,9 +29,12 @@ class LocomotiveFunctions extends StatefulWidget {
 
 class _LocomotiveFunctionsState extends State<LocomotiveFunctions> {
   static const iconCollection = {
+    'light': Icons.light,
     'lightbulb': Icons.lightbulb,
     'volume_up': Icons.volume_up,
+    'volume_off': Icons.volume_off,
     'air': Icons.air,
+    'alarm': Icons.alarm,
     'traffic_rounded': Icons.traffic_rounded,
   };
 

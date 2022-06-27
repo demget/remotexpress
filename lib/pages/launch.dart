@@ -28,7 +28,7 @@ class _LaunchPageState extends State<LaunchPage> {
     final network = NetworkInfo();
     final wifiName = await network.getWifiName();
 
-    if (wifiName != defaultWifiName) {
+    if (wifiName != null && wifiName != defaultWifiName) {
       CustomDialog.error(
         context,
         title: L10n.of(context)!.errorBadWiFiTitle,
@@ -66,6 +66,8 @@ class _LaunchPageState extends State<LaunchPage> {
 
     final station = await launch();
     if (station != null) {
+      station.off();
+      await Future.delayed(Duration(seconds: 1));
       station.resume();
       widget.onLaunched?.call(station);
     }
@@ -90,7 +92,7 @@ class _LaunchPageState extends State<LaunchPage> {
             Padding(padding: EdgeInsets.only(top: 20)),
             Text(
               status.text(context) + "...",
-              style: GoogleFonts.lato(
+              style: TextStyle(
                 fontSize: 18.0,
                 color: Colors.white,
               ),

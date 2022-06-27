@@ -24,8 +24,8 @@ class _LocomotiveSelectorState extends State<LocomotiveSelector> {
       maxValue: 256,
       initialValue: widget.loco,
       onChanged: (v) => widget.onChanged(v.toInt()),
-      textStyle: GoogleFonts.lato(color: Colors.grey),
-      selectedTextStyle: GoogleFonts.lato(
+      textStyle: TextStyle(color: Colors.grey),
+      selectedTextStyle: TextStyle(
         color: Theme.of(context).primaryColor,
         fontSize: 20,
       ),

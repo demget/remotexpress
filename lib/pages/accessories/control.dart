@@ -33,7 +33,7 @@ class _AccessoriesControlState extends State<AccessoriesControl> {
     return i >= 0 && i < widget.accessories.length;
   }
 
-  Accessory currentAccessory() {
+  Accessory current() {
     if (!isValid()) return Accessory(0);
     return widget.accessories[address()];
   }
@@ -67,7 +67,7 @@ class _AccessoriesControlState extends State<AccessoriesControl> {
                   color: Theme.of(context).primaryColor,
                 ),
                 prefixIcon: Icon(
-                  Icons.memory,
+                  Icons.numbers,
                   size: 28,
                   color: Theme.of(context).primaryColor,
                 ),
@@ -81,8 +81,8 @@ class _AccessoriesControlState extends State<AccessoriesControl> {
           Expanded(
             flex: 3,
             child: ToggleButton(
-              on: currentAccessory().on,
-              child: Text(currentAccessory().on ? 'ON' : 'OFF'),
+              on: current().on,
+              child: Text(current().on ? 'ON' : 'OFF'),
               onPressed: isValid() ? () => widget.onToggle(address()) : null,
             ),
           ),

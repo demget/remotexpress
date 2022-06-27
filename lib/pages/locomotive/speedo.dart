@@ -155,7 +155,7 @@ class _LocomotiveSpeedoState extends State<LocomotiveSpeedo> {
                   end: widget.visualSpeed.toDouble(),
                   duration: Duration(milliseconds: 500),
                   textScaleFactor: 8,
-                  style: GoogleFonts.lato(
+                  style: TextStyle(
                     color: Colors.grey[350],
                     fontWeight: FontWeight.w300,
                   ),

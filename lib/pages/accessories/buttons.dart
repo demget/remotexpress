@@ -6,11 +6,13 @@ class AccessoryButtons extends StatefulWidget {
   final List<Accessory> accessories;
   final void Function(int)? onToggle;
   final Widget Function(int) childBuilder;
+  final bool sort;
 
   AccessoryButtons({
     required this.accessories,
     required this.childBuilder,
     this.onToggle,
+    this.sort = false,
   });
 
   @override
@@ -21,7 +23,7 @@ class _AccessoryButtonsState extends State<AccessoryButtons> {
   @override
   Widget build(BuildContext context) {
     final accessories = List.from(widget.accessories);
-    accessories.sort((a, b) => a.a - b.a);
+    if (widget.sort) accessories.sort((a, b) => a.a - b.a);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -31,8 +33,8 @@ class _AccessoryButtonsState extends State<AccessoryButtons> {
           child: ToggleButton(
             on: accessory.on,
             child: widget.childBuilder(accessory.a),
-            onPressed: widget.onToggle != null
-                ? () => widget.onToggle!(accessory.a)
+            onPressed: !(accessory.played ?? false)
+                ? () => widget.onToggle?.call(accessory.a - 1)
                 : null,
           ),
         );

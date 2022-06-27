@@ -19,7 +19,7 @@ class LocomotiveDirectionTrack extends StatefulWidget {
 }
 
 class _LocomotiveDirectionTrackState extends State<LocomotiveDirectionTrack> {
-  static final labelStyle = GoogleFonts.lato(
+  static final labelStyle = TextStyle(
     color: Colors.grey,
     fontSize: 12,
     fontWeight: FontWeight.bold,
